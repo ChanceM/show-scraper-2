@@ -25,7 +25,7 @@ from models.sponsor import Sponsor
 
 # Limit scraping only the latest episodes of the show (executes the script much faster!)
 # Used with GitHub Actions to run on a daily schedule and scrape the latest episodes.
-IS_LATEST_ONLY = bool(os.getenv("LATEST_ONLY", True))
+IS_LATEST_ONLY = bool(os.getenv("LATEST_ONLY", False))
 LATEST_ONLY_EP_LIMIT = 5
 
 # Root dir where all the scraped data should to saved to.
@@ -43,6 +43,9 @@ SPONSORS: Dict[str, Sponsor] = {}  # JSON filename as key (e.g. "linode.com-lup.
 # Regex to strip Episode Numbers and information after the |
 # https://regex101.com/r/gkUzld/
 SHOW_TITLE_REGEX = re.compile(r"^(?:(?:Episode)?\s?[0-9]+:+\s+)?(.+?)(?:(\s+\|+.*)|\s+)?$")
+
+global config
+config = None
 
 def makedirs_safe(directory):
     try:
