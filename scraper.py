@@ -140,7 +140,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
 
     episode_guid = item.guid.guid
 
-    output_file = f"{DATA_ROOT_DIR}/shows/{show}/{episode_number_padded}.md"
+    output_file = f"{DATA_ROOT_DIR}/content/shows/{show}/{episode_number_padded}.md"
 
     if not IS_LATEST_ONLY and os.path.isfile(output_file):
         # Overwrite when IS_LATEST_ONLY mode is true
