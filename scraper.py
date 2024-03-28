@@ -14,6 +14,7 @@ from pydantic import AnyHttpUrl
 from frontmatter import Post, dumps
 from html2text import html2text
 from loguru import logger
+from datetime import datetime
 
 from models import Rss
 from models.config import ConfigData, ShowDetails
@@ -140,7 +141,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
 
     episode_guid = item.guid.guid
 
-    output_file = f"{DATA_ROOT_DIR}/content/shows/{show}/{episode_number_padded}.md"
+    output_file = f"{DATA_ROOT_DIR}/content/show/{show}/{episode_number_padded}.md"
 
     if not IS_LATEST_ONLY and os.path.isfile(output_file):
         # Overwrite when IS_LATEST_ONLY mode is true
@@ -166,7 +167,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 episode_guid=episode_guid,
                 title=get_plain_title(item.title),
                 description=description,
-                date=item.pubDate,
+                date=datetime.strptime(item.pubDate, '%a, %d %b %Y %H:%M:%S %z').strftime('%Y-%m-%dT%H:%M:%S%z'),
                 tags=[],
                 hosts=list(map(get_canonical_username, list(filter(lambda person: person.role.lower() == 'host', item.podcastPersons)))),
                 guests=[],
