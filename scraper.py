@@ -149,6 +149,15 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
 
     sponsors = parse_sponsors(item.link, episode_number, show, show_details)
 
+    # Parse up to first strong to build a summary description
+    description_soup = BeautifulSoup(item.description, features="html.parser")
+    description_p1  = description_soup.find(string=re.compile(r'.*|(strong)')).text
+    description_p2 = description_soup.find('strong').previous.previous.previous.text
+
+    description = description_p1
+    if not description_p1 == description_p2:
+        description += description_p2
+
     episode = Episode(
                 show_slug=show,
                 show_name=show_details.name,
@@ -156,7 +165,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 episode_padded=episode_number_padded,
                 episode_guid=episode_guid,
                 title=get_plain_title(item.title),
-                description=html2text(item.description),
+                description=description,
                 date=item.pubDate,
                 tags=[],
                 hosts=list(map(get_canonical_username, list(filter(lambda person: person.role.lower() == 'host', item.podcastPersons)))),
