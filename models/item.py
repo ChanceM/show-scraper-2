@@ -14,7 +14,7 @@ class Enclosure(BaseXmlModel, tag='enclosure'):
     type: str = attr(default=None)
     url: AnyHttpUrl = attr(default=None)
 
-class Item(BaseXmlModel, tag='item'):
+class Item(BaseXmlModel, tag='item', search_mode='unordered'):
     title: str = element()
     description: Optional[str] = element(default=None)
     guid: Optional[Guid] = element(tag='guid', default=None)
@@ -31,9 +31,9 @@ class Item(BaseXmlModel, tag='item'):
     podcastEpisode: Optional[int] = PodcastEpisode
     itunesEpisodeType: Optional[str] = EpisodeType
     enclosure: Optional[Enclosure] = None
-    podcastChapters: Optional[Chapters] = Chapters
-    podcastTranscripts: Tuple[Transcript, ...] = Transcript
-    podcastPersons: Tuple[Person, ...] = Person
+    podcastChapters: Optional[Chapters] = None
+    podcastTranscripts: Optional[Tuple[Transcript, ...]] = []
+    podcastPersons: Optional[Tuple[Person, ...]] = []
 
     @field_validator('pubDate', mode='before')
     def pubDate_validator(cls, value: str) -> str:

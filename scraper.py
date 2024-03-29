@@ -10,7 +10,7 @@ import requests
 import yaml
 from bs4 import BeautifulSoup, NavigableString
 from typing import Union, Optional, Dict, List
-from pydantic import AnyHttpUrl
+from pydantic import AnyHttpUrl, PositiveInt
 from frontmatter import Post, dumps
 from html2text import html2text
 from loguru import logger
@@ -59,9 +59,15 @@ def get_plain_title(title: str) -> str:
     """
     return SHOW_TITLE_REGEX.match(title)[1]
 
-def get_podcast_chapters(chapters_url: AnyHttpUrl) -> Optional[Chapters]:
+def seconds_2_hhmmss_str(seconds: PositiveInt) -> str:
+    seconds = seconds
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    return f"{hours:02}:{minutes:02}:{seconds:02}"
+
+def get_podcast_chapters(chapters: Chapters) -> Optional[Chapters]:
     try:
-        resp = requests.get(chapters_url)
+        resp = requests.get(chapters.url)
         resp.raise_for_status()
 
         try:
@@ -74,6 +80,8 @@ def get_podcast_chapters(chapters_url: AnyHttpUrl) -> Optional[Chapters]:
     except requests.HTTPError:
         # No chapters
         pass
+    except AttributeError:
+        return None
 
 def get_canonical_username(username: Person) -> str:
     """
@@ -131,6 +139,7 @@ def parse_sponsors(page_url: AnyHttpUrl, episode_number: int, show: str, show_de
     return sponsors
 
 def build_episode_file(item: Item, show: str, show_details: ShowDetails):
+    logger.debug(item.podcastPersons)
     try:
         episode_number = int(item.title.split(":")[0])
         episode_number_padded = f"{episode_number:04}"
@@ -147,16 +156,20 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
         logger.warning(f"Skipping saving `{output_file}` as it already exists")
         return
 
-    sponsors = parse_sponsors(item.link, episode_number, show, show_details)
+    # sponsors = parse_sponsors(item.link, episode_number, show, show_details)
+    sponsors = []
 
     # Parse up to first strong to build a summary description
     description_soup = BeautifulSoup(item.description, features="html.parser")
     description_p1  = description_soup.find(string=re.compile(r'.*|(strong)')).text
-    description_p2 = description_soup.find('strong').previous.previous.previous.text
-
     description = description_p1
-    if not description_p1 == description_p2:
-        description += description_p2
+    try:
+        description_p2 = description_soup.find('strong').previous.previous.previous.text
+
+        if not description_p1 == description_p2:
+            description += description_p2
+    except:
+        pass
 
     episode = Episode(
                 show_slug=show,
@@ -171,10 +184,10 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 hosts=list(map(get_canonical_username, list(filter(lambda person: person.role.lower() == 'host', item.podcastPersons)))),
                 guests=list(map(get_canonical_username, list(filter(lambda person: person.role.lower() == 'guest', item.podcastPersons)))),
                 sponsors=sponsors,
-                podcast_duration=item.itunesDuration,
+                podcast_duration=item.itunesDuration if ':' in item.itunesDuration else seconds_2_hhmmss_str(int(item.itunesDuration)),
                 podcast_file=item.enclosure.url,
                 podcast_bytes=item.enclosure.length,
-                podcast_chapters=get_podcast_chapters(item.podcastChapters.url),
+                podcast_chapters=get_podcast_chapters(item.podcastChapters),
                 podcast_alt_file=None,
                 podcast_ogg_file=None,
                 video_file=None,

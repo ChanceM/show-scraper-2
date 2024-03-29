@@ -88,7 +88,7 @@ class Episode(BaseModel):
 
     # Episode GUID
     # Source: Fireside json api: `items[n].id`
-    episode_guid: UUID
+    episode_guid: str
 
     # Episode number again, but specifically for Hugo.
     # Need this since we want to have zero padded filenames (e.g. `0042.md`), but no
