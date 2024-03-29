@@ -1,5 +1,5 @@
 from pydantic_xml import BaseXmlModel, attr, element
-from pydantic import constr, EmailStr, UUID5, AnyHttpUrl
+from pydantic import constr, EmailStr, UUID5, AnyHttpUrl, PositiveInt
 from typing import Optional, Tuple, Literal
 
 NSMAP = {
@@ -189,12 +189,28 @@ class Recipient(BaseXmlModel, tag='valueRecipient', ns='podcast', nsmap=NSMAP):
     split: int = attr()
     fee: Optional[bool] = attr(default=None)
 
+class RemoteItem(BaseXmlModel, tag='remoteItem', ns='podcast', nsmap=NSMAP):
+    feedGuid: UUID5 = attr()
+    feedUrl: Optional[AnyHttpUrl] = attr(default=None)
+    itemGuid: Optional[str] = attr(default=None)
+    medium: Literal[MEDIUM_VALUES] = attr()
+
+class Timesplit(BaseXmlModel, tag='valueTimeSplit', ns='podcast', nsmap=NSMAP):
+    startTime: PositiveInt = attr()
+    duration: PositiveInt = attr()
+    remotePercentage: int = attr()
+    remoteStartTime: Optional[PositiveInt] = attr(default=None)
+    remoteItem: Optional[RemoteItem] = element(tag='remoteItem', ns='podcast', nsmap=NSMAP)
+    recipients: Optional[Tuple[Recipient, ...]] = element(tag='valueRecipient', ns='podcast', nsmap=NSMAP, default=())
+
+
 class Value(BaseXmlModel, tag='value', ns='podcast', nsmap=NSMAP):
     type: str = attr()
     method: str = attr()
     suggested: Optional[float] = attr(default=None)
 
     recipients: Tuple[Recipient, ...] = element(tag='valueRecipient', ns='podcast', nsmap=NSMAP)
+    timesplits: Optional[Tuple[Timesplit, ...]] = element(tag='valueTimeSplit', ns='podcast', nsmap=NSMAP, default=())
 
 class RemoteItem(BaseXmlModel, tag='remoteITem', ns='podcast', nsmap=NSMAP):
     feedGuid: str = attr()
