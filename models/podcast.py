@@ -234,3 +234,9 @@ class Transcript(BaseXmlModel, tag='transcript', ns='podcast', nsmap=NSMAP):
     type: str = attr()
     language: Optional[str] = attr(default=None)
     rel: Optional[str] = attr(default=None)
+
+class UpdateFrequency(BaseXmlModel, tag='updateFrequency', ns='podcast', nsmap=NSMAP):
+    complete: Optional[bool] = attr(default=None)
+    dtstart: Optional[str] = attr(default=None)
+    rrule: Optional[str] = attr(default=None)
+    frequency: str = constr(strip_whitespace=True)
