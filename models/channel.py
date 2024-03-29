@@ -1,9 +1,10 @@
 from pydantic_xml import BaseXmlModel, attr, element
 from typing import Tuple, Optional
-from models.podcast import Podping, Value, Podroll, Images, Medium, Locked, Guid, Person
+from models.podcast import Podping, UpdateFrequency, Value, Podroll, Images, Medium, Locked, Guid, Person
 from models.itunes import Category, Title, ItunesImage, Author, Owner, Explicit, Type
 from models.item import Item
-from pydantic import UUID5, EmailStr
+from pydantic import UUID5, EmailStr, field_validator
+from datetime import datetime
 
 ns = {
     'atom': 'http://www.w3.org/2005/Atom/',
@@ -32,6 +33,7 @@ class Channel(BaseXmlModel, tag='channel'):
     podcastPodroll: Optional[Podroll] = None
     image: Optional[Image] = None
     podcastImages: Optional[Images] = None
+    podcastUpdateFrequency: Optional[UpdateFrequency] = None
     podcastMedium: Optional[str] = Medium
     title: str = element(tag='title')
     description: str = element()
@@ -53,3 +55,7 @@ class Channel(BaseXmlModel, tag='channel'):
     itunesCategories: Tuple[Category, ...] = Category
     itunesType: Optional[str] = Type
     items: Tuple[Item, ...] = element(tag='item')
+
+    @field_validator('pubDate', mode='before')
+    def pubDate_validator(cls, value: str) -> str:
+        return datetime.strptime(value, '%a, %d %b %Y %H:%M:%S %z').isoformat()
