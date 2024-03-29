@@ -3,8 +3,8 @@ from typing import Dict, Set
 
 
 class ShowDetails(BaseModel):
+    show_rss: HttpUrl
     show_url: HttpUrl
-    show_guid: str
     jb_url: HttpUrl
     acronym: str
     name: str

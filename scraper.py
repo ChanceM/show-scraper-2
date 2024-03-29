@@ -230,7 +230,7 @@ def main():
 
 
     for show, show_config in validated_config.shows.items():
-        response = requests.get(f'https://serve.podhome.fm/rss/{show_config.show_guid}')
+        response = requests.get(show_config.show_rss)
 
         rss = Rss.from_xml(response.content)
 

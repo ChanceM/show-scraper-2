@@ -7,9 +7,7 @@ from pydantic import EmailStr, field_validator
 from datetime import datetime
 
 ns = {
-    'atom': 'http://www.w3.org/2005/Atom/',
-    'atom': 'http://www.w3.org/2005/Atom',
-    'podcast': 'https://podcastindex.org/namespace/1.0'
+    'atom': 'http://www.w3.org/2005/Atom'
 }
 
 class AtomLink(BaseXmlModel, tag='link', ns='atom', nsmap=ns):
@@ -26,7 +24,7 @@ class Image(BaseXmlModel, tag='image'):
     height: Optional[int] = element(tag='height', default=None)
     width: Optional[int] = element(tag='width', default=None)
 
-class Channel(BaseXmlModel, tag='channel'):
+class Channel(BaseXmlModel, tag='channel', search_mode='unordered'):
     atomLinks: Optional[Tuple[AtomLink, ...]] = element(tag='link', ns='atom', nsmap=ns, default=None)
     podcastPodping: Optional[Podping] = None
     podcastValue: Optional[Value] = None
@@ -35,9 +33,9 @@ class Channel(BaseXmlModel, tag='channel'):
     podcastImages: Optional[Images] = None
     podcastUpdateFrequency: Optional[UpdateFrequency] = None
     podcastMedium: Optional[str] = Medium
-    title: str = element(tag='title')
+    title: str = element()
     description: str = element()
-    link: str = element(tag='link')
+    link: str = element()
     language: str = element()
     copyright: str = element()
     podcastLocked: Optional[Locked] = None
@@ -59,3 +57,7 @@ class Channel(BaseXmlModel, tag='channel'):
     @field_validator('pubDate', mode='before')
     def pubDate_validator(cls, value: str) -> str:
         return datetime.strptime(value, '%a, %d %b %Y %H:%M:%S %z').isoformat()
+
+    # class Config:
+        # extra = 'forbid'
+        # extra = 'ignore'

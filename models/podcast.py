@@ -203,7 +203,6 @@ class Timesplit(BaseXmlModel, tag='valueTimeSplit', ns='podcast', nsmap=NSMAP):
     remoteItem: Optional[RemoteItem] = element(tag='remoteItem', ns='podcast', nsmap=NSMAP)
     recipients: Optional[Tuple[Recipient, ...]] = element(tag='valueRecipient', ns='podcast', nsmap=NSMAP, default=())
 
-
 class Value(BaseXmlModel, tag='value', ns='podcast', nsmap=NSMAP):
     type: str = attr()
     method: str = attr()
@@ -233,7 +232,7 @@ class Person(BaseXmlModel, tag='person', ns='podcast', nsmap=NSMAP):
     role: Optional[ROLE_VALUES] = attr(default='host')
     group: Optional[GROUP_VALUES] = attr(default='cast')
     href: Optional[AnyHttpUrl] = attr(default=None)
-    image: Optional[AnyHttpUrl] = attr(default=None)
+    img: Optional[AnyHttpUrl] = attr(default=None)
     name: str = constr(strip_whitespace=True)
 
 class Podroll(BaseXmlModel, tag='podroll', ns='podcast', nsmap=NSMAP):
