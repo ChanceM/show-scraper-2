@@ -1,8 +1,9 @@
 from pydantic_xml import BaseXmlModel, attr, element
 from typing import Tuple, Optional
-from models.podcast import Chapters, Podping, Transcript, Value, Podroll, Images, Medium, Locked, Guid, Person, PodcastEpisode
-from models.itunes import Category, Title, ItunesImage, Author, Owner, Explicit, Type, Duration, ItunesEpisode, EpisodeType
-from pydantic import UUID5, EmailStr, constr, AnyHttpUrl
+from models.podcast import Chapters, Transcript, Value, Images, Guid, Person, PodcastEpisode
+from models.itunes import Title, ItunesImage, Author, Explicit,  Duration, ItunesEpisode, EpisodeType
+from pydantic import constr, AnyHttpUrl, field_validator
+from datetime import datetime
 
 class Guid(BaseXmlModel, tag='guid'):
     isPermaLink: Optional[bool] = attr(default=None)
@@ -33,3 +34,7 @@ class Item(BaseXmlModel, tag='item'):
     podcastChapters: Optional[Chapters] = Chapters
     podcastTranscripts: Tuple[Transcript, ...] = Transcript
     podcastPersons: Tuple[Person, ...] = Person
+
+    @field_validator('pubDate', mode='before')
+    def pubDate_validator(cls, value: str) -> str:
+        return datetime.strptime(value, '%a, %d %b %Y %H:%M:%S %z').isoformat()
