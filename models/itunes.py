@@ -1,6 +1,6 @@
-from pydantic_xml import RootXmlModel, BaseXmlModel, attr, element, wrapped
-from pydantic import constr, EmailStr, PositiveInt, AnyHttpUrl
-from typing import Optional, Tuple, Literal
+from pydantic_xml import BaseXmlModel, attr, element, wrapped
+from pydantic import EmailStr, PositiveInt, AnyHttpUrl
+from typing import Optional, Literal
 
 NSMAP = {
     'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd',

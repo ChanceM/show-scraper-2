@@ -14,7 +14,6 @@ from pydantic import AnyHttpUrl
 from frontmatter import Post, dumps
 from html2text import html2text
 from loguru import logger
-from datetime import datetime
 
 from models import Rss
 from models.config import ConfigData, ShowDetails

@@ -1,5 +1,5 @@
-from typing import Tuple, Optional, Any
-from pydantic_xml import BaseXmlModel, RootXmlModel, attr, element, wrapped
+from typing import Optional
+from pydantic_xml import BaseXmlModel, attr
 
 from models.channel import Channel
 

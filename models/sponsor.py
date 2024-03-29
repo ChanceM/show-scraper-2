@@ -1,5 +1,4 @@
-from typing import Literal, Optional
-from pydantic import BaseModel, AnyHttpUrl, root_validator
+from pydantic import BaseModel
 
 
 class Sponsor(BaseModel):

@@ -1,6 +1,6 @@
-from pydantic_xml import RootXmlModel, BaseXmlModel, attr, element
+from pydantic_xml import BaseXmlModel, attr, element
 from pydantic import constr, EmailStr, UUID5, AnyHttpUrl
-from typing import Optional, Tuple, Literal, List
+from typing import Optional, Tuple, Literal
 
 NSMAP = {
     'podcast': 'https://podcastindex.org/namespace/1.0',

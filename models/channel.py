@@ -3,7 +3,7 @@ from typing import Tuple, Optional
 from models.podcast import Podping, UpdateFrequency, Value, Podroll, Images, Medium, Locked, Guid, Person
 from models.itunes import Category, Title, ItunesImage, Author, Owner, Explicit, Type
 from models.item import Item
-from pydantic import UUID5, EmailStr, field_validator
+from pydantic import EmailStr, field_validator
 from datetime import datetime
 
 ns = {
