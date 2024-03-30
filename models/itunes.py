@@ -27,8 +27,8 @@ class ItunesImage(BaseXmlModel, tag='image', ns='itunes', nsmap=NSMAP):
 Author: str = element(tag='author', default=None, ns='itunes', nsmap=NSMAP)
 
 class Owner(BaseXmlModel, tag='owner', ns='itunes', nsmap=NSMAP):
-    name: str = wrapped('name')
-    email: EmailStr = wrapped('email')
+    name: Optional[str] = wrapped('name', default=None)
+    email: Optional[EmailStr] = wrapped('email', default=None)
 
 Explicit: bool = element(tag='explicit', default=None, ns='itunes', nsmap=NSMAP)
 

@@ -255,3 +255,34 @@ class UpdateFrequency(BaseXmlModel, tag='updateFrequency', ns='podcast', nsmap=N
     dtstart: Optional[str] = attr(default=None)
     rrule: Optional[str] = attr(default=None)
     frequency: str = constr(strip_whitespace=True)
+
+
+class Funding(BaseXmlModel, tag='funding', ns='podcast', nsmap=NSMAP):
+    url: str
+    funding: str = constr(strip_whitespace=True)
+
+class Soundbite(BaseXmlModel, tag='soundbite', ns='podcast', nsmap=NSMAP):
+    startTime: float
+    duration: float
+    soundbite: str = constr(strip_whitespace=True)
+
+class Location(BaseXmlModel, tag='location', ns='podcast', nsmap=NSMAP):
+    geo: Optional[str] = None
+    osm: Optional[str] = None
+    location: str = constr(strip_whitespace=True)
+
+class Season(BaseXmlModel, tag='season', ns='podcast', nsmap=NSMAP):
+    name: Optional[str] = None
+    season: str = constr(strip_whitespace=True)
+
+class Episode(BaseXmlModel, tag='episode', ns='podcast', nsmap=NSMAP):
+    display: Optional[str] = None
+    episode: str = constr(strip_whitespace=True)
+
+class Trailer(BaseXmlModel, tag='trailer', ns='podcast', nsmap=NSMAP):
+    url: AnyHttpUrl
+    pubdate: str
+    length: Optional[PositiveInt] = None
+    type: Optional[str] = None
+    season: Optional[str] = None
+    trailer: str = constr(strip_whitespace=True)
