@@ -3,4 +3,5 @@ data/
 venv/
 .vscode/
 .git/
+.env
 __pycache__/

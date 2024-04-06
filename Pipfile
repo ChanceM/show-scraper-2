@@ -12,6 +12,7 @@ pyyaml = "*"
 bs4 = "*"
 python-frontmatter = "*"
 pydantic = {version = "*", extras = ["email"]}
+pydantic-settings = "*"
 
 [dev-packages]
 pytest = "*"

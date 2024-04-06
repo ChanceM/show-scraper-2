@@ -4,7 +4,6 @@ import concurrent.futures
 import os
 import sys
 import re
-from logging import DEBUG, INFO
 from urllib.parse import urlparse
 import requests
 import yaml
@@ -15,7 +14,7 @@ from frontmatter import Post, dumps
 from html2text import html2text
 from loguru import logger
 
-from models import Rss
+from models import Settings, Rss
 from models.config import ConfigData, ShowDetails
 from models.episode import Episode
 from models.item import Item
@@ -23,22 +22,10 @@ from models.episode import Chapters
 from models.podcast import Person
 from models.sponsor import Sponsor
 
-# Limit scraping only the latest episodes of the show (executes the script much faster!)
-# Used with GitHub Actions to run on a daily schedule and scrape the latest episodes.
-IS_LATEST_ONLY = bool(os.getenv("LATEST_ONLY", False))
-LATEST_ONLY_EP_LIMIT = 5
-
-# Root dir where all the scraped data should to saved to.
-# The data save to this dir follows the directory structure of the Hugo files relative
-# to the root of the repo.
-# Could be set via env variable to use the Hugo root directory.
-# Any files that already exist in this directory will not be overwritten.
-DATA_ROOT_DIR = os.getenv("DATA_DIR", "./data")
 
 # The sponsors' data is collected into this global when episode files are scraped.
 # This data is saved to files files after the episode files have been created.
 SPONSORS: Dict[str, Sponsor] = {}  # JSON filename as key (e.g. "linode.com-lup.json")
-
 
 # Regex to strip Episode Numbers and information after the |
 # https://regex101.com/r/gkUzld/
@@ -58,12 +45,6 @@ def get_plain_title(title: str) -> str:
     Get just the show title, without any numbering etc
     """
     return SHOW_TITLE_REGEX.match(title)[1]
-
-def seconds_2_hhmmss_str(seconds: PositiveInt) -> str:
-    seconds = seconds
-    minutes, seconds = divmod(seconds, 60)
-    hours, minutes = divmod(minutes, 60)
-    return f"{hours:02}:{minutes:02}:{seconds:02}"
 
 def get_podcast_chapters(chapters: Chapters) -> Optional[Chapters]:
     try:
@@ -139,7 +120,7 @@ def parse_sponsors(page_url: AnyHttpUrl, episode_number: int, show: str, show_de
     return sponsors
 
 def build_episode_file(item: Item, show: str, show_details: ShowDetails):
-    logger.debug(item.podcastPersons)
+    logger.debug(item.itunesExplicit)
     try:
         episode_number = int(item.title.split(":")[0])
         episode_number_padded = f"{episode_number:04}"
@@ -149,14 +130,13 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
 
     episode_guid = item.guid.guid
 
-    output_file = f"{DATA_ROOT_DIR}/content/show/{show}/{episode_number_padded}.md"
+    output_file = f"{Settings.DATA_DIR}/content/show/{show}/{episode_number_padded.replace('/','')}.md"
 
-    if not IS_LATEST_ONLY and os.path.isfile(output_file):
+    if not Settings.LATEST_ONLY and os.path.isfile(output_file):
         # Overwrite when IS_LATEST_ONLY mode is true
         logger.warning(f"Skipping saving `{output_file}` as it already exists")
         return
 
-    # sponsors = parse_sponsors(item.link, episode_number, show, show_details)
     sponsors = []
 
     # Parse up to first strong to build a summary description
@@ -184,7 +164,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 hosts=list(map(get_canonical_username, list(filter(lambda person: person.role.lower() == 'host', item.podcastPersons)))),
                 guests=list(map(get_canonical_username, list(filter(lambda person: person.role.lower() == 'guest', item.podcastPersons)))),
                 sponsors=sponsors,
-                podcast_duration=item.itunesDuration if ':' in item.itunesDuration else seconds_2_hhmmss_str(int(item.itunesDuration)),
+                podcast_duration=item.itunesDuration.root,
                 podcast_file=item.enclosure.url,
                 podcast_bytes=item.enclosure.length,
                 podcast_chapters=get_podcast_chapters(item.podcastChapters),
@@ -200,11 +180,11 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 episode_links=html2text(item.description)
             )
 
-    save_file(output_file, episode.get_hugo_md_file_content(), overwrite=IS_LATEST_ONLY)
+    save_file(output_file, episode.get_hugo_md_file_content(), overwrite=Settings.LATEST_ONLY)
 
 def save_sponsors(executor):
     logger.info(">>> Saving the sponsors found in episodes...")
-    sponsors_dir = os.path.join(DATA_ROOT_DIR, "content", "sponsors")
+    sponsors_dir = os.path.join(Settings.DATA_DIR, "content", "sponsors")
     futures = []
     for filename, sponsor in SPONSORS.items():
         futures.append(executor.submit(
@@ -218,7 +198,7 @@ def save_sponsors(executor):
 
 def save_post_obj_file(filename: str, post_obj: Post, dest_dir: str, overwrite: bool = False) -> None:
     data_dont_override = set(config.get("data_dont_override"))
-    if IS_LATEST_ONLY and filename in data_dont_override:
+    if Settings.LATEST_ONLY and filename in data_dont_override:
         logger.warning(f"Filename `{filename}` found in `data_dont_override`! Will not save to it.")
         overwrite = False
     file_path = os.path.join(dest_dir, filename)
@@ -246,11 +226,16 @@ def main():
         response = requests.get(show_config.show_rss)
 
         rss = Rss.from_xml(response.content)
+        logger.debug(rss.channel.itunesExplicit)
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
 
             futures = []
-            for item in rss.channel.items:
+            for idx, item in enumerate(rss.channel.items):
+                if Settings.LATEST_ONLY and idx >= Settings.LATEST_ONLY_EP_LIMIT:
+                    logger.debug(f"Limiting scraping to only {Settings.LATEST_ONLY_EP_LIMIT} most"
+                            " recent episodes")
+                    break
                 futures.append(executor.submit(
                     build_episode_file,
                     item,
@@ -267,9 +252,9 @@ def main():
 
 
 if __name__ == "__main__":
-    LOG_LVL = int(os.getenv("LOG_LVL", INFO))  # Defaults to INFO, 10 for debug
+    Settings = Settings()
     logger.remove()  # Remove default logger
-    logger.add(sys.stderr, level=LOG_LVL)
+    logger.add(sys.stderr, level=Settings.LOG_LVL)
 
     logger.info("🚀🚀🚀 SCRAPER STARTED! 🚀🚀🚀")
     main()
