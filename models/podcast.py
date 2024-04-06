@@ -1,5 +1,5 @@
 from pydantic_xml import BaseXmlModel, attr, element
-from pydantic import constr, EmailStr, UUID5, AnyHttpUrl, PositiveInt
+from pydantic import constr, EmailStr, UUID5, AnyHttpUrl, PositiveInt, field_validator
 from typing import Optional, Tuple, Literal
 
 NSMAP = {
@@ -87,69 +87,6 @@ ROLE_VALUES = Literal[
     "Assistant Camera",
     "Editor",
     "Assistant Editor",
-    "director",
-    "assistant director",
-    "executive producer",
-    "senior producer",
-    "producer",
-    "associate producer",
-    "development producer",
-    "creative director",
-    "host",
-    "co-host",
-    "guest host",
-    "guest",
-    "voice actor",
-    "narrator",
-    "announcer",
-    "reporter",
-    "author",
-    "editorial director",
-    "co-writer",
-    "writer",
-    "songwriter",
-    "guest writer",
-    "story editor",
-    "managing editor",
-    "script editor",
-    "script coordinator",
-    "researcher",
-    "editor",
-    "fact checker",
-    "translator",
-    "transcriber",
-    "logger",
-    "studio coordinator",
-    "technical director",
-    "technical manager",
-    "audio engineer",
-    "remote recording engineer",
-    "post production engineer",
-    "audio editor",
-    "sound designer",
-    "foley artist",
-    "composer",
-    "theme music",
-    "music production",
-    "music contributor",
-    "production coordinator",
-    "booking coordinator",
-    "production assistant",
-    "content manager",
-    "marketing manager",
-    "sales representative",
-    "sales manager",
-    "graphic designer",
-    "cover art designer",
-    "social media manager",
-    "consultant",
-    "intern",
-    "camera operator",
-    "lighting designer",
-    "camera grip",
-    "assistant camera",
-    "editor",
-    "assistant editor",
 ]
 
 GROUP_VALUES = Literal[
@@ -164,17 +101,6 @@ GROUP_VALUES = Literal[
     "Misc.",
     "Video Production",
     "Video Post-Production",
-    "creative direction",
-    "cast",
-    "writing",
-    "audio production",
-    "audio post-production",
-    "administration",
-    "visuals",
-    "community",
-    "misc.",
-    "video production",
-    "video post-production",
 ]
 
 class Podping(BaseXmlModel, tag='podping', ns='podcast', nsmap=NSMAP):
@@ -198,7 +124,7 @@ class RemoteItem(BaseXmlModel, tag='remoteItem', ns='podcast', nsmap=NSMAP):
 class Timesplit(BaseXmlModel, tag='valueTimeSplit', ns='podcast', nsmap=NSMAP):
     startTime: PositiveInt = attr()
     duration: PositiveInt = attr()
-    remotePercentage: int = attr()
+    remotePercentage: Optional[int] = attr(default=None)
     remoteStartTime: Optional[PositiveInt] = attr(default=None)
     remoteItem: Optional[RemoteItem] = element(tag='remoteItem', ns='podcast', nsmap=NSMAP)
     recipients: Optional[Tuple[Recipient, ...]] = element(tag='valueRecipient', ns='podcast', nsmap=NSMAP, default=())
@@ -235,10 +161,20 @@ class Person(BaseXmlModel, tag='person', ns='podcast', nsmap=NSMAP):
     img: Optional[AnyHttpUrl] = attr(default=None)
     name: str = constr(strip_whitespace=True)
 
+    @field_validator('href', 'img', mode='before')
+    @classmethod
+    def validate_url(cls, value):
+        if value == '':
+            return None
+        return value
+
+    @field_validator('role', 'group', mode='before')
+    @classmethod
+    def validate_to_title(cls, value):
+        return value.title()
+
 class Podroll(BaseXmlModel, tag='podroll', ns='podcast', nsmap=NSMAP):
     remoteItems: Tuple[RemoteItem, ...] = element(tag='remoteItem')
-
-PodcastEpisode: int = element(tag='episode', ns='podcast', nsmap=NSMAP, default=None )
 
 class Chapters(BaseXmlModel, tag='chapters', ns='podcast', nsmap=NSMAP):
     url: AnyHttpUrl = attr()
@@ -258,12 +194,12 @@ class UpdateFrequency(BaseXmlModel, tag='updateFrequency', ns='podcast', nsmap=N
 
 
 class Funding(BaseXmlModel, tag='funding', ns='podcast', nsmap=NSMAP):
-    url: str
+    url: str = attr()
     funding: str = constr(strip_whitespace=True)
 
 class Soundbite(BaseXmlModel, tag='soundbite', ns='podcast', nsmap=NSMAP):
-    startTime: float
-    duration: float
+    startTime: float = attr()
+    duration: float = attr()
     soundbite: str = constr(strip_whitespace=True)
 
 class Location(BaseXmlModel, tag='location', ns='podcast', nsmap=NSMAP):
@@ -280,8 +216,8 @@ class Episode(BaseXmlModel, tag='episode', ns='podcast', nsmap=NSMAP):
     episode: str = constr(strip_whitespace=True)
 
 class Trailer(BaseXmlModel, tag='trailer', ns='podcast', nsmap=NSMAP):
-    url: AnyHttpUrl
-    pubdate: str
+    url: AnyHttpUrl = attr()
+    pubdate: str = attr()
     length: Optional[PositiveInt] = None
     type: Optional[str] = None
     season: Optional[str] = None

@@ -1,9 +1,10 @@
+import os
 from pydantic_xml import BaseXmlModel, attr, element
 from typing import Tuple, Optional
 from models.podcast import Funding, Location, Podping, Trailer, UpdateFrequency, Value, Podroll, Images, Medium, Locked, Guid, Person
 from models.itunes import Category, Title, ItunesImage, Author, Owner, Explicit, Type
 from models.item import Item
-from pydantic import EmailStr, field_validator
+from pydantic import EmailStr, field_validator, ConfigDict
 from datetime import datetime
 
 ns = {
@@ -51,7 +52,7 @@ class Channel(BaseXmlModel, tag='channel', search_mode='unordered'):
     itunesImage: Optional[ItunesImage] = None
     itunesAuthor: Optional[str] = Author
     itunesOwner: Optional[Owner] = None
-    itunesExplicit: Optional[bool] = Explicit
+    itunesExplicit: Optional[Explicit] = None
     itunesCategories: Tuple[Category, ...] = Category
     itunesType: Optional[str] = Type
     podcastFunding: Optional[Funding] = None
@@ -61,6 +62,4 @@ class Channel(BaseXmlModel, tag='channel', search_mode='unordered'):
     def pubDate_validator(cls, value: str) -> str:
         return datetime.strptime(value, '%a, %d %b %Y %H:%M:%S %z').isoformat()
 
-    class Config:
-        extra = 'forbid'
-        # extra = 'ignore'
+    model_config: ConfigDict(Extras=os.getenv('EXTRAS', 'allow'))

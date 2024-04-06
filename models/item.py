@@ -1,8 +1,9 @@
+import os
 from pydantic_xml import BaseXmlModel, attr, element
 from typing import Tuple, Optional
-from models.podcast import Chapters, Episode, Location, Season, Soundbite, Transcript, Value, Images, Guid, Person, PodcastEpisode
+from models.podcast import Chapters, Episode, Location, Season, Soundbite, Transcript, Value, Images, Guid, Person
 from models.itunes import Title, ItunesImage, Author, Explicit,  Duration, ItunesEpisode, EpisodeType
-from pydantic import constr, AnyHttpUrl, field_validator
+from pydantic import constr, AnyHttpUrl, field_validator, ConfigDict
 from datetime import datetime
 
 class Guid(BaseXmlModel, tag='guid'):
@@ -22,19 +23,18 @@ class Item(BaseXmlModel, tag='item', search_mode='unordered'):
     link: Optional[str] = element(tag='link', default=None)
     pubDate: Optional[str] = element(default=None)
     itunesImage: Optional[ItunesImage] = None
-    itunesDuration: Optional[str] = Duration
-    itunesExplicit: Optional[bool] = Explicit
+    itunesDuration: Optional[Duration] = None
+    itunesExplicit: Optional[Explicit] = None
     itunesTitle: Optional[str] = Title
     itunesAuthor: Optional[str] = Author
     itunesEpisode: Optional[int] = ItunesEpisode
     itunesEpisodeType: Optional[str] = EpisodeType
     podcastSoundbite: Optional[Tuple[Soundbite, ...]] = []
     podcastSeason: Optional[Season] = None
-    podcastEpisode: Optional[Episode] = None
     podcastLocation: Optional[Location] = None
     podcastValue: Optional[Value] = None
     podcastImages: Optional[Images] = None
-    podcastEpisode: Optional[int] = PodcastEpisode
+    podcastEpisode: Optional[Episode] = None
     podcastChapters: Optional[Chapters] = None
     podcastTranscripts: Optional[Tuple[Transcript, ...]] = []
     podcastPersons: Optional[Tuple[Person, ...]] = []
@@ -43,5 +43,4 @@ class Item(BaseXmlModel, tag='item', search_mode='unordered'):
     def pubDate_validator(cls, value: str) -> str:
         return datetime.strptime(value, '%a, %d %b %Y %H:%M:%S %z').isoformat()
 
-    class Config:
-        extra = 'forbid'
+    model_config: ConfigDict(Extras=os.getenv('EXTRAS', 'allow'))
