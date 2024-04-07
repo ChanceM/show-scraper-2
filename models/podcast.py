@@ -1,6 +1,7 @@
-from pydantic_xml import BaseXmlModel, attr, element
+from pydantic_xml import attr, element
 from pydantic import constr, EmailStr, UUID5, AnyHttpUrl, PositiveInt, field_validator
 from typing import Optional, Tuple, Literal
+from models.scraper import ScraperBaseXmlModel
 
 NSMAP = {
     'podcast': 'https://podcastindex.org/namespace/1.0',
@@ -103,10 +104,10 @@ GROUP_VALUES = Literal[
     "Video Post-Production",
 ]
 
-class Podping(BaseXmlModel, tag='podping', ns='podcast', nsmap=NSMAP):
+class Podping(ScraperBaseXmlModel, tag='podping', ns='podcast', nsmap=NSMAP):
     usesPodping: bool = attr()
 
-class Recipient(BaseXmlModel, tag='valueRecipient', ns='podcast', nsmap=NSMAP):
+class Recipient(ScraperBaseXmlModel, tag='valueRecipient', ns='podcast', nsmap=NSMAP):
     name: str = attr()
     type: str = attr()
     address: str = attr()
@@ -115,13 +116,13 @@ class Recipient(BaseXmlModel, tag='valueRecipient', ns='podcast', nsmap=NSMAP):
     split: int = attr()
     fee: Optional[bool] = attr(default=None)
 
-class RemoteItem(BaseXmlModel, tag='remoteItem', ns='podcast', nsmap=NSMAP):
+class RemoteItem(ScraperBaseXmlModel, tag='remoteItem', ns='podcast', nsmap=NSMAP):
     feedGuid: UUID5 = attr()
     feedUrl: Optional[AnyHttpUrl] = attr(default=None)
     itemGuid: Optional[str] = attr(default=None)
     medium: Literal[MEDIUM_VALUES] = attr()
 
-class Timesplit(BaseXmlModel, tag='valueTimeSplit', ns='podcast', nsmap=NSMAP):
+class Timesplit(ScraperBaseXmlModel, tag='valueTimeSplit', ns='podcast', nsmap=NSMAP):
     startTime: PositiveInt = attr()
     duration: PositiveInt = attr()
     remotePercentage: Optional[int] = attr(default=None)
@@ -129,7 +130,7 @@ class Timesplit(BaseXmlModel, tag='valueTimeSplit', ns='podcast', nsmap=NSMAP):
     remoteItem: Optional[RemoteItem] = element(tag='remoteItem', ns='podcast', nsmap=NSMAP)
     recipients: Optional[Tuple[Recipient, ...]] = element(tag='valueRecipient', ns='podcast', nsmap=NSMAP, default=())
 
-class Value(BaseXmlModel, tag='value', ns='podcast', nsmap=NSMAP):
+class Value(ScraperBaseXmlModel, tag='value', ns='podcast', nsmap=NSMAP):
     type: str = attr()
     method: str = attr()
     suggested: Optional[float] = attr(default=None)
@@ -137,26 +138,26 @@ class Value(BaseXmlModel, tag='value', ns='podcast', nsmap=NSMAP):
     recipients: Tuple[Recipient, ...] = element(tag='valueRecipient', ns='podcast', nsmap=NSMAP)
     timesplits: Optional[Tuple[Timesplit, ...]] = element(tag='valueTimeSplit', ns='podcast', nsmap=NSMAP, default=())
 
-class RemoteItem(BaseXmlModel, tag='remoteITem', ns='podcast', nsmap=NSMAP):
+class RemoteItem(ScraperBaseXmlModel, tag='remoteITem', ns='podcast', nsmap=NSMAP):
     feedGuid: str = attr()
     feedUrl: Optional[str] = attr(default=None)
     itemGuid: Optional[str] = attr(default=None)
     medium: Optional[MEDIUM_VALUES] = attr(default='podcast')
 
-class Images(BaseXmlModel, tag='images', ns='podcast', nsmap=NSMAP):
+class Images(ScraperBaseXmlModel, tag='images', ns='podcast', nsmap=NSMAP):
     srcset: str = attr(default=None)
 
 Medium: Literal[MEDIUM_VALUES] = element(tag='medium', ns='podcast', nsmap=NSMAP, default='podcast')
 
-class Locked(BaseXmlModel, tag='locked', ns='podcast', nsmap=NSMAP):
+class Locked(ScraperBaseXmlModel, tag='locked', ns='podcast', nsmap=NSMAP):
     owner: Optional[EmailStr] = attr(default=None)
     locked: Literal['yes','no'] = constr(strip_whitespace=True)
 
 Guid: UUID5 = element(tag='guid', ns='podcast', nsmap=NSMAP, default=None )
 
-class Person(BaseXmlModel, tag='person', ns='podcast', nsmap=NSMAP):
-    role: Optional[ROLE_VALUES] = attr(default='host')
-    group: Optional[GROUP_VALUES] = attr(default='cast')
+class Person(ScraperBaseXmlModel, tag='person', ns='podcast', nsmap=NSMAP):
+    role: Optional[ROLE_VALUES] = attr(default='Host')
+    group: Optional[GROUP_VALUES] = attr(default='Cast')
     href: Optional[AnyHttpUrl] = attr(default=None)
     img: Optional[AnyHttpUrl] = attr(default=None)
     name: str = constr(strip_whitespace=True)
@@ -173,49 +174,49 @@ class Person(BaseXmlModel, tag='person', ns='podcast', nsmap=NSMAP):
     def validate_to_title(cls, value):
         return value.title()
 
-class Podroll(BaseXmlModel, tag='podroll', ns='podcast', nsmap=NSMAP):
+class Podroll(ScraperBaseXmlModel, tag='podroll', ns='podcast', nsmap=NSMAP):
     remoteItems: Tuple[RemoteItem, ...] = element(tag='remoteItem')
 
-class Chapters(BaseXmlModel, tag='chapters', ns='podcast', nsmap=NSMAP):
+class Chapters(ScraperBaseXmlModel, tag='chapters', ns='podcast', nsmap=NSMAP):
     url: AnyHttpUrl = attr()
     type: str = attr()
 
-class Transcript(BaseXmlModel, tag='transcript', ns='podcast', nsmap=NSMAP):
+class Transcript(ScraperBaseXmlModel, tag='transcript', ns='podcast', nsmap=NSMAP):
     url: AnyHttpUrl = attr()
     type: str = attr()
     language: Optional[str] = attr(default=None)
     rel: Optional[str] = attr(default=None)
 
-class UpdateFrequency(BaseXmlModel, tag='updateFrequency', ns='podcast', nsmap=NSMAP):
+class UpdateFrequency(ScraperBaseXmlModel, tag='updateFrequency', ns='podcast', nsmap=NSMAP):
     complete: Optional[bool] = attr(default=None)
     dtstart: Optional[str] = attr(default=None)
     rrule: Optional[str] = attr(default=None)
     frequency: str = constr(strip_whitespace=True)
 
 
-class Funding(BaseXmlModel, tag='funding', ns='podcast', nsmap=NSMAP):
+class Funding(ScraperBaseXmlModel, tag='funding', ns='podcast', nsmap=NSMAP):
     url: str = attr()
     funding: str = constr(strip_whitespace=True)
 
-class Soundbite(BaseXmlModel, tag='soundbite', ns='podcast', nsmap=NSMAP):
+class Soundbite(ScraperBaseXmlModel, tag='soundbite', ns='podcast', nsmap=NSMAP):
     startTime: float = attr()
     duration: float = attr()
     soundbite: str = constr(strip_whitespace=True)
 
-class Location(BaseXmlModel, tag='location', ns='podcast', nsmap=NSMAP):
+class Location(ScraperBaseXmlModel, tag='location', ns='podcast', nsmap=NSMAP):
     geo: Optional[str] = None
     osm: Optional[str] = None
     location: str = constr(strip_whitespace=True)
 
-class Season(BaseXmlModel, tag='season', ns='podcast', nsmap=NSMAP):
+class Season(ScraperBaseXmlModel, tag='season', ns='podcast', nsmap=NSMAP):
     name: Optional[str] = None
     season: str = constr(strip_whitespace=True)
 
-class Episode(BaseXmlModel, tag='episode', ns='podcast', nsmap=NSMAP):
+class Episode(ScraperBaseXmlModel, tag='episode', ns='podcast', nsmap=NSMAP):
     display: Optional[str] = None
     episode: str = constr(strip_whitespace=True)
 
-class Trailer(BaseXmlModel, tag='trailer', ns='podcast', nsmap=NSMAP):
+class Trailer(ScraperBaseXmlModel, tag='trailer', ns='podcast', nsmap=NSMAP):
     url: AnyHttpUrl = attr()
     pubdate: str = attr()
     length: Optional[PositiveInt] = None

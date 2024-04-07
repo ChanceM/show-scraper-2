@@ -9,12 +9,13 @@ import requests
 import yaml
 from bs4 import BeautifulSoup, NavigableString
 from typing import Union, Optional, Dict, List
-from pydantic import AnyHttpUrl, PositiveInt
+from pydantic import AnyHttpUrl
 from frontmatter import Post, dumps
 from html2text import html2text
 from loguru import logger
 
-from models import Settings, Rss
+from models import Rss
+from models.scraper import Settings
 from models.config import ConfigData, ShowDetails
 from models.episode import Episode
 from models.item import Item
@@ -119,16 +120,14 @@ def parse_sponsors(page_url: AnyHttpUrl, episode_number: int, show: str, show_de
 
     return sponsors
 
-def build_episode_file(item: Item, show: str, show_details: ShowDetails):
-    logger.debug(item.itunesExplicit)
-    try:
-        episode_number = int(item.title.split(":")[0])
-        episode_number_padded = f"{episode_number:04}"
-    except:
-        episode_number = item.title.split(":")[0]
-        episode_number_padded = episode_number
+def parse_episode_number(title: str) -> str:
+    # return re.match(r'.*?(\d+):', title).groups()[0]
+    return re.match(r'.*?((?:Pocket Office )?\d+):', title).groups()[0]
 
-    episode_guid = item.guid.guid
+
+def build_episode_file(item: Item, show: str, show_details: ShowDetails):
+    episode_string = parse_episode_number(item.title)
+    episode_number, episode_number_padded = (int(episode_string), f'{int(episode_string):04}') if episode_string.isnumeric() else tuple(("".join(re.findall(r'[A-Z\d]',episode_string)).lower(),))*2
 
     output_file = f"{Settings.DATA_DIR}/content/show/{show}/{episode_number_padded.replace('/','')}.md"
 
@@ -156,13 +155,13 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 show_name=show_details.name,
                 episode=episode_number,
                 episode_padded=episode_number_padded,
-                episode_guid=episode_guid,
+                episode_guid=item.guid.guid,
                 title=get_plain_title(item.title),
-                description=description,
+                description=item.itunesSubtitle.root if item.itunesSubtitle else description,
                 date=item.pubDate,
                 tags=[],
-                hosts=list(map(get_canonical_username, list(filter(lambda person: person.role.lower() == 'host', item.podcastPersons)))),
-                guests=list(map(get_canonical_username, list(filter(lambda person: person.role.lower() == 'guest', item.podcastPersons)))),
+                hosts=list(map(get_canonical_username, list(filter(lambda person: person.role in Settings.Host_Roles, item.podcastPersons)))),
+                guests=list(map(get_canonical_username, list(filter(lambda person: person.role in Settings.Guest_Roles, item.podcastPersons)))),
                 sponsors=sponsors,
                 podcast_duration=item.itunesDuration.root,
                 podcast_file=item.enclosure.url,
@@ -226,7 +225,6 @@ def main():
         response = requests.get(show_config.show_rss)
 
         rss = Rss.from_xml(response.content)
-        logger.debug(rss.channel.itunesExplicit)
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
 
