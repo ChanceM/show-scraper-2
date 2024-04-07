@@ -147,7 +147,7 @@ class Episode(BaseModel):
 
     # Number of bytes of the `podcast_file` above (from fireside)
     # Source: fireside
-    podcast_bytes: PositiveInt
+    podcast_bytes: int
 
     # Chapters JSON in a format defined by podcastindex.org:
     #   https://github.com/Podcastindex-org/podcast-namespace/blob/main/chapters/jsonChapters.md
