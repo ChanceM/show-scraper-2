@@ -18,6 +18,7 @@ from models import Rss
 from models.scraper import Settings
 from models.config import ConfigData, ShowDetails
 from models.episode import Episode
+from models.participant import Participant
 from models.item import Item
 from models.episode import Chapters
 from models.podcast import Person
@@ -27,6 +28,9 @@ from models.sponsor import Sponsor
 # The sponsors' data is collected into this global when episode files are scraped.
 # This data is saved to files files after the episode files have been created.
 SPONSORS: Dict[str, Sponsor] = {}  # JSON filename as key (e.g. "linode.com-lup.json")
+
+#
+PARTICIPANTS: Dict[str, Participant] = {}
 
 # Regex to strip Episode Numbers and information after the |
 # https://regex101.com/r/gkUzld/
@@ -75,7 +79,7 @@ def get_canonical_username(username: Person) -> str:
     # Replace username if found in usernames_map or default to input username
     return next(filter(str.__instancecheck__,(key for key, list in usernames_map.items() if username.name in list)), username.name)
 
-def parse_sponsors(page_url: AnyHttpUrl, episode_number: int, show: str, show_details: ShowDetails) -> List[str]:
+def parse_sponsors(page_url: AnyHttpUrl, episode_number: str, show: str, show_details: ShowDetails) -> List[str]:
     response = requests.get(page_url,)
     page_soup = BeautifulSoup(response.text, features="html.parser")
 
@@ -136,10 +140,22 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
         logger.warning(f"Skipping saving `{output_file}` as it already exists")
         return
 
-    sponsors = []
+    sponsors = parse_sponsors(item.link, episode_number,show,show_details)
+
+
+    description_soup = BeautifulSoup(item.description, features="html.parser")
+    for br in description_soup.select('br'):
+        br.decompose()
+
+    links_label = description_soup.find('strong', string=re.compile(r'.*Links|Show.*'))
+    if links_label:
+        episode_links = ''.join([str(i) for i in links_label.find_all_next(['strong','li'])])
+    else:
+        episode_links = ''.join([str(i) for i in description_soup.find_all(['strong','li'])])
+
+    item.description = str(episode_links)
 
     # Parse up to first strong to build a summary description
-    description_soup = BeautifulSoup(item.description, features="html.parser")
     description_p1  = description_soup.find(string=re.compile(r'.*|(strong)')).text
     description = description_p1
     try:
@@ -179,7 +195,52 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 episode_links=html2text(item.description)
             )
 
+    build_participants(item.podcastPersons)
+
     save_file(output_file, episode.get_hugo_md_file_content(), overwrite=Settings.LATEST_ONLY)
+
+def build_participants(participants: List[Person]):
+    for participant in list(filter(lambda person: person.role in [*Settings.Host_Roles, *Settings.Guest_Roles], participants)):
+        canonical_username = get_canonical_username(participant)
+        filename = f'{canonical_username}.md'
+
+        PARTICIPANTS.update({
+            filename: Participant(
+                type='host' if participant.role in Settings.Host_Roles else 'guest',
+                username=canonical_username,
+                title=participant.name,
+                homepage=str(participant.href) if participant.href else None,
+                avatar=f'images/people/{canonical_username}.{str(participant.img).split(".")[-1]}' if participant.img else None
+            )
+        })
+
+        if participant.img:
+            save_avatar_img(participant.img,canonical_username, f'images/people/{canonical_username}.{str(participant.img).split(".")[-1]}')
+
+def save_avatar_img(img_url: str, username: str, relative_filepath: str) -> None:
+    """Save the avatar image only if it doesn't exist.
+
+    Return the file path relative to the `static` folder.
+    For example: "images/people/chris.jpg"
+    """
+    try:
+        full_filepath = os.path.join(Settings.DATA_DIR, "static", relative_filepath)
+
+        # Check if file exist BEFORE the request. This is more efficient as it saves
+        # time and bandwidth
+        if os.path.exists(full_filepath):
+            logger.warning(f"Skipping saving `{full_filepath}` as it already exists")
+            return relative_filepath
+
+        resp = requests.get(img_url)
+        resp.raise_for_status()
+
+        save_file(full_filepath, resp.content, mode="wb")
+
+    except Exception:
+        logger.exception("Failed to save avatar!\n"
+                         f"  img_url: {img_url}"
+                         f"  username: {username}")
 
 def save_sponsors(executor):
     logger.info(">>> Saving the sponsors found in episodes...")
@@ -194,6 +255,20 @@ def save_sponsors(executor):
     for future in concurrent.futures.as_completed(futures):
         future.result()
     logger.info(">>> Finished saving sponsors")
+
+def save_participants(executor):
+    logger.info(">>> Saving the participants found in episodes...")
+    person_dir = os.path.join(Settings.DATA_DIR, "content", "people")
+    futures = []
+    for filename, participant in PARTICIPANTS.items():
+        futures.append(executor.submit(
+            save_post_obj_file,
+            filename, Post('',**participant.model_dump()), person_dir, overwrite=True))
+
+    # Drain all threads
+    for future in concurrent.futures.as_completed(futures):
+        future.result()
+    logger.info(">>> Finished saving participants")
 
 def save_post_obj_file(filename: str, post_obj: Post, dest_dir: str, overwrite: bool = False) -> None:
     data_dont_override = set(config.get("data_dont_override"))
@@ -247,6 +322,7 @@ def main():
                 future.result()
 
             save_sponsors(executor)
+            save_participants(executor)
 
 
 if __name__ == "__main__":
