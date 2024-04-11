@@ -147,11 +147,12 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
     for br in description_soup.select('br'):
         br.decompose()
 
-    links_label = description_soup.find('strong', string=re.compile(r'.*Links|Show.*'))
+    links_label = description_soup.find('strong', string=re.compile(r'.*Links|Show.*',re.IGNORECASE))
     if links_label:
         episode_links = ''.join([str(i) for i in links_label.find_all_next(['strong','li'])])
     else:
         episode_links = ''.join([str(i) for i in description_soup.find_all(['strong','li'])])
+    episode_links = re.sub(r'</li><strong>','</li><br/><strong>',episode_links)
 
     item.description = str(episode_links)
 
@@ -159,10 +160,9 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
     description_p1  = description_soup.find(string=re.compile(r'.*|(strong)')).text
     description = description_p1
     try:
-        description_p2 = description_soup.find('strong').previous.previous.previous.text
-
+        description_p2 = description_soup.find('strong').previous.text
         if not description_p1 == description_p2:
-            description += description_p2
+            description = " ".join([description_p1.strip(), description_p2.strip()])
     except:
         pass
 
