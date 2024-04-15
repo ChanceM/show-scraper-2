@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 
 import concurrent.futures
-import os
 import sys
 import re
 from urllib.parse import urlparse
 import requests
 import yaml
+import asyncio
 from bs4 import BeautifulSoup, NavigableString
 from typing import Union, Optional, Dict, List
 from pydantic import AnyHttpUrl
 from frontmatter import Post, dumps
 from html2text import html2text
 from loguru import logger
+from pathlib import Path
 
 from models import Rss
 from models.scraper import Settings
 from models.config import ConfigData, ShowDetails
-from models.episode import Episode
+from models.episode import Episode, Chapters
 from models.participant import Participant
 from models.item import Item
-from models.episode import Chapters
 from models.podcast import Person
 from models.sponsor import Sponsor
 
@@ -38,12 +38,6 @@ SHOW_TITLE_REGEX = re.compile(r"^(?:(?:Episode)?\s?[0-9]+:+\s+)?(.+?)(?:(\s+\|+.
 
 global config
 config = None
-
-def makedirs_safe(directory):
-    try:
-        os.makedirs(directory)
-    except FileExistsError:
-        pass
 
 def get_plain_title(title: str) -> str:
     """
@@ -103,7 +97,7 @@ def parse_sponsors(page_url: AnyHttpUrl, episode_number: str, show: str, show_de
             shortname = f"{sponsor_slug}-{show_details.acronym}".lower()
             sponsors.append(shortname)
 
-            filename = f"{shortname}.md"
+            filename = f'{shortname}.md'
 
             description = " ".join([sponsor_link.find_next('strong').text, sponsor_link.find_next('strong').next_sibling.text])
 
@@ -133,9 +127,9 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
     episode_string = parse_episode_number(item.title)
     episode_number, episode_number_padded = (int(episode_string), f'{int(episode_string):04}') if episode_string.isnumeric() else tuple(("".join(re.findall(r'[A-Z\d]',episode_string)).lower(),))*2
 
-    output_file = f"{Settings.DATA_DIR}/content/show/{show}/{episode_number_padded.replace('/','')}.md"
+    output_file = Path(Settings.DATA_DIR) / 'content' / 'show' / show / f'{episode_number_padded.replace("/","")}.md'
 
-    if not Settings.LATEST_ONLY and os.path.isfile(output_file):
+    if not Settings.LATEST_ONLY and output_file.exists():
         # Overwrite when IS_LATEST_ONLY mode is true
         logger.warning(f"Skipping saving `{output_file}` as it already exists")
         return
@@ -215,20 +209,20 @@ def build_participants(participants: List[Person]):
         })
 
         if participant.img:
-            save_avatar_img(participant.img,canonical_username, f'images/people/{canonical_username}.{str(participant.img).split(".")[-1]}')
+            asyncio.run(save_avatar_img(participant.img,canonical_username, f'images/people/{canonical_username}.{str(participant.img).split(".")[-1]}'))
 
-def save_avatar_img(img_url: str, username: str, relative_filepath: str) -> None:
+async def save_avatar_img(img_url: str, username: str, relative_filepath: str) -> None:
     """Save the avatar image only if it doesn't exist.
 
     Return the file path relative to the `static` folder.
     For example: "images/people/chris.jpg"
     """
     try:
-        full_filepath = os.path.join(Settings.DATA_DIR, "static", relative_filepath)
+        full_filepath = Path(Settings.DATA_DIR) / 'static' / relative_filepath
 
         # Check if file exist BEFORE the request. This is more efficient as it saves
         # time and bandwidth
-        if os.path.exists(full_filepath):
+        if full_filepath.exists():
             logger.warning(f"Skipping saving `{full_filepath}` as it already exists")
             return relative_filepath
 
@@ -236,6 +230,7 @@ def save_avatar_img(img_url: str, username: str, relative_filepath: str) -> None
         resp.raise_for_status()
 
         save_file(full_filepath, resp.content, mode="wb")
+        logger.info(f"Saved file: {full_filepath}")
 
     except Exception:
         logger.exception("Failed to save avatar!\n"
@@ -244,7 +239,7 @@ def save_avatar_img(img_url: str, username: str, relative_filepath: str) -> None
 
 def save_sponsors(executor):
     logger.info(">>> Saving the sponsors found in episodes...")
-    sponsors_dir = os.path.join(Settings.DATA_DIR, "content", "sponsors")
+    sponsors_dir = Path(Settings.DATA_DIR) / 'content' / 'sponsors'
     futures = []
     for filename, sponsor in SPONSORS.items():
         futures.append(executor.submit(
@@ -258,7 +253,7 @@ def save_sponsors(executor):
 
 def save_participants(executor):
     logger.info(">>> Saving the participants found in episodes...")
-    person_dir = os.path.join(Settings.DATA_DIR, "content", "people")
+    person_dir = Path(Settings.DATA_DIR) / 'content' / 'people'
     futures = []
     for filename, participant in PARTICIPANTS.items():
         futures.append(executor.submit(
@@ -270,20 +265,21 @@ def save_participants(executor):
         future.result()
     logger.info(">>> Finished saving participants")
 
-def save_post_obj_file(filename: str, post_obj: Post, dest_dir: str, overwrite: bool = False) -> None:
+def save_post_obj_file(filename: str, post_obj: Post, dest_dir: Path, overwrite: bool = False) -> None:
     data_dont_override = set(config.get("data_dont_override"))
     if Settings.LATEST_ONLY and filename in data_dont_override:
         logger.warning(f"Filename `{filename}` found in `data_dont_override`! Will not save to it.")
         overwrite = False
-    file_path = os.path.join(dest_dir, filename)
+
+    file_path = dest_dir / filename
     save_file(file_path, dumps(post_obj), overwrite=overwrite)
 
-def save_file(file_path: str, content: Union[bytes,str], mode: str = "w", overwrite: bool = False) -> bool:
-    if not overwrite and os.path.exists(file_path):
+def save_file(file_path: Path, content: Union[bytes,str], mode: str = "w", overwrite: bool = False) -> bool:
+    if not overwrite and file_path.exists():
         logger.warning(f"Skipping saving `{file_path}` as it already exists")
         return False
 
-    makedirs_safe(os.path.dirname(file_path))
+    file_path.parent.mkdir(parents=True, exist_ok=True)
     with open(file_path, mode) as f:
         f.write(content)
     logger.info(f"Saved file: {file_path}")
