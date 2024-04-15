@@ -150,15 +150,12 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
 
     item.description = str(episode_links)
 
-    # Parse up to first strong to build a summary description
-    description_p1  = description_soup.find(string=re.compile(r'.*|(strong)')).text
-    description = description_p1
-    try:
-        description_p2 = description_soup.find('strong').previous.text
-        if not description_p1 == description_p2:
-            description = " ".join([description_p1.strip(), description_p2.strip()])
-    except:
-        pass
+    node = description_soup.find('strong')
+    description_parts = []
+    while node and type(node.previous) is NavigableString:
+        description_parts.insert(0, node.previous.text.strip())
+        node = node.previous
+    description = ' '.join(description_parts)
 
     episode = Episode(
                 show_slug=show,
