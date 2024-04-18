@@ -2,11 +2,9 @@ from datetime import time
 from pydantic_xml import attr, element, wrapped
 from pydantic import EmailStr, PositiveInt, AnyHttpUrl, constr, field_validator
 from typing import Optional, Literal
-from models.scraper import ScraperBaseXmlModel, ScraperRootXmlModel
+from models.scraper import ScraperBaseXmlModel, ScraperRootXmlModel, NSMAP
 
-NSMAP = {
-    'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd',
-}
+NSMAP = {'itunes':NSMAP['itunes']}
 
 TYPE_VALUES = Literal[
     'episodic',
