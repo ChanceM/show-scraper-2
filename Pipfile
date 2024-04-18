@@ -13,6 +13,7 @@ bs4 = "*"
 python-frontmatter = "*"
 pydantic = {version = "*", extras = ["email"]}
 pydantic-settings = "*"
+lxml = "*"
 
 [dev-packages]
 pytest = "*"
