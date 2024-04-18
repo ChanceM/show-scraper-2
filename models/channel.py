@@ -28,23 +28,23 @@ class Image(ScraperBaseXmlModel, tag='image'):
 
 class Channel(ScraperBaseXmlModel, tag='channel'):
     atomLinks: Optional[Tuple[AtomLink, ...]] = element(tag='link', ns='atom', nsmap=ns, default=None)
-    podcastPodping: Optional[Podping] = None
-    podcastValue: Optional[Value] = None
-    podcastPodroll: Optional[Podroll] = None
     image: Optional[Image] = None
-    podcastImages: Optional[Images] = None
-    podcastUpdateFrequency: Optional[UpdateFrequency] = None
-    podcastMedium: Optional[str] = Medium
     title: str = element()
     description: str = element()
     link: str = element()
     language: str = element()
     copyright: str = element()
+    podcastImages: Optional[Images] = None
     podcastLocation: Optional[Location] = None
     podcastLocked: Optional[Locked] = None
-    podcastGuid: Optional[str] = Guid
-    podcastPersons: Optional[Tuple[Person,...]] = Person
-    podcastTrailer: Optional[Tuple[Trailer,...]] = Trailer
+    podcastMedium: Optional[Medium] = None
+    podcastGuid: Optional[Guid] = None
+    podcastPersons: Optional[Tuple[Person,...]] = None
+    podcastPodping: Optional[Podping] = None
+    podcastPodroll: Optional[Podroll] = None
+    podcastTrailer: Optional[Tuple[Trailer,...]] = None
+    podcastUpdateFrequency: Optional[UpdateFrequency] = None
+    podcastValue: Optional[Value] = None
     generator: Optional[str] = element(default=None)
     managingEditor: Optional[EmailStr] = element(default=None)
     lastBuildDate: Optional[str] = element(default=None)
@@ -54,7 +54,7 @@ class Channel(ScraperBaseXmlModel, tag='channel'):
     itunesAuthor: Optional[str] = Author
     itunesOwner: Optional[Owner] = None
     itunesExplicit: Optional[Explicit] = None
-    itunesCategories: Tuple[Category, ...] = Category
+    itunesCategories: Tuple[Category, ...] = None
     itunesType: Optional[str] = Type
     itunesSubtitle: Optional[Subtitle] = None
     podcastFunding: Optional[Funding] = None
