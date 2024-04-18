@@ -1,11 +1,10 @@
 from pydantic_xml import attr, element
 from pydantic import constr, EmailStr, UUID5, AnyHttpUrl, PositiveInt, field_validator
 from typing import Optional, Tuple, Literal
-from models.scraper import ScraperBaseXmlModel
+from models.scraper import ScraperBaseXmlModel, ScraperRootXmlModel, NSMAP
+from uuid import UUID
 
-NSMAP = {
-    'podcast': 'https://podcastindex.org/namespace/1.0',
-}
+NSMAP = {'podcast':NSMAP['podcast']}
 
 MEDIUM_VALUES = Literal[
     'podcast',
@@ -147,13 +146,15 @@ class RemoteItem(ScraperBaseXmlModel, tag='remoteITem', ns='podcast', nsmap=NSMA
 class Images(ScraperBaseXmlModel, tag='images', ns='podcast', nsmap=NSMAP):
     srcset: str = attr(default=None)
 
-Medium: Literal[MEDIUM_VALUES] = element(tag='medium', ns='podcast', nsmap=NSMAP, default='podcast')
+class Medium(ScraperBaseXmlModel, tag='medium', ns='podcast', nsmap=NSMAP):
+    medium: Literal[MEDIUM_VALUES] = 'podcast'
 
 class Locked(ScraperBaseXmlModel, tag='locked', ns='podcast', nsmap=NSMAP):
     owner: Optional[EmailStr] = attr(default=None)
     locked: Literal['yes','no'] = constr(strip_whitespace=True)
 
-Guid: UUID5 = element(tag='guid', ns='podcast', nsmap=NSMAP, default=None )
+class Guid(ScraperRootXmlModel, tag='guid', ns='podcast', nsmap=NSMAP):
+    root: UUID
 
 class Person(ScraperBaseXmlModel, tag='person', ns='podcast', nsmap=NSMAP):
     role: Optional[ROLE_VALUES] = attr(default='Host')
@@ -223,3 +224,14 @@ class Trailer(ScraperBaseXmlModel, tag='trailer', ns='podcast', nsmap=NSMAP):
     type: Optional[str] = None
     season: Optional[str] = None
     trailer: str = constr(strip_whitespace=True)
+
+class License(ScraperBaseXmlModel, tag='license', ns='podcast', nsmap=NSMAP):
+    url: Optional[AnyHttpUrl] = attr(default=None)
+    license: str
+
+    @field_validator('url', mode='before')
+    @classmethod
+    def validate_url(cls, value):
+        if value == '':
+            return None
+        return value
