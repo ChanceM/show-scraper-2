@@ -29,8 +29,15 @@ class ScraperBaseXmlModel(BaseXmlModel):
         super().__init_subclass__(**kwargs)
         self.__xml_search_mode__ = 'unordered'
 
-    model_config: ConfigDict(extras=Settings().Extras)
+    model_config = ConfigDict(extras=Settings().Extras)
 
 class ScraperRootXmlModel(RootXmlModel):
 
-    model_config: ConfigDict(extras=Settings().Extras)
+    model_config = ConfigDict(extras=Settings().Extras)
+
+
+NSMAP = {
+    'podcast': 'https://podcastindex.org/namespace/1.0',
+    'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd',
+    'atom': 'http://www.w3.org/2005/Atom'
+}
