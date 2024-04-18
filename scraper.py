@@ -6,7 +6,6 @@ import re
 from urllib.parse import urlparse
 import requests
 import yaml
-import asyncio
 from bs4 import BeautifulSoup, NavigableString
 from typing import Union, Optional, Dict, List
 from pydantic import AnyHttpUrl
@@ -206,9 +205,9 @@ def build_participants(participants: List[Person]):
         })
 
         if participant.img:
-            asyncio.run(save_avatar_img(participant.img,canonical_username, f'images/people/{canonical_username}.{str(participant.img).split(".")[-1]}'))
+            save_avatar_img(participant.img,canonical_username, f'images/people/{canonical_username}.{str(participant.img).split(".")[-1]}')
 
-async def save_avatar_img(img_url: str, username: str, relative_filepath: str) -> None:
+def save_avatar_img(img_url: str, username: str, relative_filepath: str) -> None:
     """Save the avatar image only if it doesn't exist.
 
     Return the file path relative to the `static` folder.
