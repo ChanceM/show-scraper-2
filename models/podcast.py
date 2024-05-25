@@ -103,6 +103,11 @@ GROUP_VALUES = Literal[
     "Video Post-Production",
 ]
 
+INTEGRITY_VALUES = Literal[
+    "sri",
+    "pgp-signature"
+]
+
 class Podping(ScraperBaseXmlModel, tag='podping', ns='podcast', nsmap=NSMAP):
     usesPodping: bool = attr()
 
@@ -115,11 +120,11 @@ class Recipient(ScraperBaseXmlModel, tag='valueRecipient', ns='podcast', nsmap=N
     split: int = attr()
     fee: Optional[bool] = attr(default=None)
 
-class RemoteItem(ScraperBaseXmlModel, tag='remoteItem', ns='podcast', nsmap=NSMAP):
-    feedGuid: UUID5 = attr()
-    feedUrl: Optional[AnyHttpUrl] = attr(default=None)
+class RemoteItem(ScraperBaseXmlModel, tag='remoteITem', ns='podcast', nsmap=NSMAP):
+    feedGuid: UUID5 | str = attr()
+    feedUrl: Optional[str] = attr(default=None)
     itemGuid: Optional[str] = attr(default=None)
-    medium: Literal[MEDIUM_VALUES] = attr()
+    medium: Optional[MEDIUM_VALUES] = attr(default='podcast')
 
 class Timesplit(ScraperBaseXmlModel, tag='valueTimeSplit', ns='podcast', nsmap=NSMAP):
     startTime: PositiveInt = attr()
@@ -136,12 +141,6 @@ class Value(ScraperBaseXmlModel, tag='value', ns='podcast', nsmap=NSMAP):
 
     recipients: Tuple[Recipient, ...] = element(tag='valueRecipient', ns='podcast', nsmap=NSMAP)
     timesplits: Optional[Tuple[Timesplit, ...]] = element(tag='valueTimeSplit', ns='podcast', nsmap=NSMAP, default=())
-
-class RemoteItem(ScraperBaseXmlModel, tag='remoteITem', ns='podcast', nsmap=NSMAP):
-    feedGuid: str = attr()
-    feedUrl: Optional[str] = attr(default=None)
-    itemGuid: Optional[str] = attr(default=None)
-    medium: Optional[MEDIUM_VALUES] = attr(default='podcast')
 
 class Images(ScraperBaseXmlModel, tag='images', ns='podcast', nsmap=NSMAP):
     srcset: str = attr(default=None)
@@ -235,3 +234,24 @@ class License(ScraperBaseXmlModel, tag='license', ns='podcast', nsmap=NSMAP):
         if value == '':
             return None
         return value
+
+class Integrity(ScraperBaseXmlModel, tag='integrity', ns='podcast', nsmap=NSMAP):
+    type: Literal[INTEGRITY_VALUES] = attr()
+    value: str = attr()
+
+class Source(ScraperBaseXmlModel, tag='source', ns='podcast', nsmap=NSMAP):
+    url: AnyHttpUrl = attr()
+    contentType: Optional[str] = None
+
+class AlternateEnclosure(ScraperBaseXmlModel, tag='alternateEnclosure', ns='podcast', nsmap=NSMAP):
+    type: str = attr()
+    length: Optional[PositiveInt] = attr(defualt=None)
+    bitrate: Optional[float] = attr(defualt=None)
+    height: Optional[PositiveInt] = attr(defualt=None)
+    lang: Optional[str] = attr(defualt=None)
+    title: Optional[str] = attr(defualt=None)
+    rel: Optional[str] = attr(defualt=None)
+    codecs: Optional[str] = attr(defualt=None)
+    defualt: Optional[bool] = attr(defualt=None)
+    integrity: Optional[Integrity] = None
+    sources: Tuple[Source,...] = element(tag='source')
