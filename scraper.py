@@ -6,7 +6,7 @@ import re
 from urllib.parse import urlparse
 import requests
 import yaml
-from bs4 import BeautifulSoup, NavigableString
+from bs4 import BeautifulSoup, NavigableString, Tag
 from typing import Union, Optional, Dict, List
 from pydantic import AnyHttpUrl
 from frontmatter import Post, dumps
@@ -148,13 +148,15 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
     episode_links = re.sub(r'</li><strong>','</li><br/><strong>',episode_links)
 
     item.description = str(episode_links)
+    description_parts = []
 
     node = description_soup.find('strong')
-    description_parts = []
-    while node and type(node.previous) is NavigableString:
-        description_parts.insert(0, node.previous.text.strip())
-        node = node.previous
-    description = ' '.join(description_parts)
+
+    if node != None:
+        node = parent if type(parent := node.parent) is Tag else node
+        while type((previous := node.previous) ) is NavigableString:
+            description_parts.insert(0, previous.text.strip())
+            node = previous
 
     episode = Episode(
                 show_slug=show,
@@ -163,16 +165,16 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 episode_padded=episode_number_padded,
                 episode_guid=item.guid.guid,
                 title=get_plain_title(item.title),
-                description=item.itunesSubtitle.root if item.itunesSubtitle else description,
+                description=item.itunes_subtitle.root if item.itunes_subtitle else ' '.join(description_parts),
                 date=item.pubDate,
                 tags=[],
-                hosts=list(map(get_canonical_username, list(filter(lambda person: person.role in Settings.Host_Roles, item.podcastPersons)))),
-                guests=list(map(get_canonical_username, list(filter(lambda person: person.role in Settings.Guest_Roles, item.podcastPersons)))),
+                hosts=list(map(get_canonical_username, list(filter(lambda person: person.role in Settings.Host_Roles, item.podcast_persons)))),
+                guests=list(map(get_canonical_username, list(filter(lambda person: person.role in Settings.Guest_Roles, item.podcast_persons)))),
                 sponsors=sponsors,
-                podcast_duration=item.itunesDuration.root,
+                podcast_duration=item.itunes_duration.root,
                 podcast_file=item.enclosure.url,
                 podcast_bytes=item.enclosure.length,
-                podcast_chapters=get_podcast_chapters(item.podcastChapters),
+                podcast_chapters=get_podcast_chapters(item.podcast_chapters),
                 podcast_alt_file=None,
                 podcast_ogg_file=None,
                 video_file=None,
@@ -181,11 +183,11 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 youtube_link=None,
                 jb_url=f'{show_details.jb_url}/{episode_number}',
                 fireside_url=item.link,
-                value=item.podcastValue,
+                value=item.podcast_value,
                 episode_links=html2text(item.description)
             )
 
-    build_participants(item.podcastPersons)
+    build_participants(item.podcast_persons)
 
     save_file(output_file, episode.get_hugo_md_file_content(), overwrite=Settings.LATEST_ONLY)
 
@@ -220,7 +222,7 @@ def save_avatar_img(img_url: str, username: str, relative_filepath: str) -> None
         # time and bandwidth
         if full_filepath.exists():
             logger.warning(f"Skipping saving `{full_filepath}` as it already exists")
-            return relative_filepath
+            return
 
         resp = requests.get(img_url)
         resp.raise_for_status()
@@ -233,7 +235,7 @@ def save_avatar_img(img_url: str, username: str, relative_filepath: str) -> None
                          f"  img_url: {img_url}"
                          f"  username: {username}")
 
-def save_sponsors(executor):
+def save_sponsors(executor: concurrent.futures.ThreadPoolExecutor) -> None:
     logger.info(">>> Saving the sponsors found in episodes...")
     sponsors_dir = Path(Settings.DATA_DIR) / 'content' / 'sponsors'
     futures = []
@@ -247,7 +249,7 @@ def save_sponsors(executor):
         future.result()
     logger.info(">>> Finished saving sponsors")
 
-def save_participants(executor):
+def save_participants(executor: concurrent.futures.ThreadPoolExecutor) -> None:
     logger.info(">>> Saving the participants found in episodes...")
     person_dir = Path(Settings.DATA_DIR) / 'content' / 'people'
     futures = []
