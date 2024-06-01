@@ -213,7 +213,7 @@ class Season(ScraperBaseXmlModel, tag='season', ns='podcast', nsmap=NSMAP):
     season: str = constr(strip_whitespace=True)
 
 class Episode(ScraperBaseXmlModel, tag='episode', ns='podcast', nsmap=NSMAP):
-    display: Optional[str] = None
+    display: Optional[str] = attr(default=None)
     episode: str = constr(strip_whitespace=True)
 
 class Trailer(ScraperBaseXmlModel, tag='trailer', ns='podcast', nsmap=NSMAP):
