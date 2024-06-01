@@ -123,7 +123,7 @@ def parse_episode_number(title: str) -> str:
 
 
 def build_episode_file(item: Item, show: str, show_details: ShowDetails):
-    episode_string = parse_episode_number(item.title)
+    episode_string = item.podcast_episode.episode if item.podcast_episode else parse_episode_number(item.title)
     episode_number, episode_number_padded = (int(episode_string), f'{int(episode_string):04}') if episode_string.isnumeric() else tuple(("".join(re.findall(r'[A-Z\d]',episode_string)).lower(),))*2
 
     output_file = Path(Settings.DATA_DIR) / 'content' / 'show' / show / f'{episode_number_padded.replace("/","")}.md'
