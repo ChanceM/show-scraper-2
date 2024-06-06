@@ -3,7 +3,6 @@
 import concurrent.futures
 import sys
 import re
-from urllib.parse import urlparse
 import requests
 import yaml
 from bs4 import BeautifulSoup, NavigableString, Tag
