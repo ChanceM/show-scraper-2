@@ -22,6 +22,7 @@ from models.participant import Participant
 from models.item import Item
 from models.podcast import Person
 from models.sponsor import Sponsor
+from models.strategies.sponsor import FiresideSponsorParse, PodhomeSponsorParse, SponsorParser
 
 
 # The sponsors' data is collected into this global when episode files are scraped.
@@ -76,46 +77,25 @@ def parse_sponsors(page_url: AnyHttpUrl, episode_number: str, show: str, show_de
     response = requests.get(page_url,)
     page_soup = BeautifulSoup(response.text, features="html.parser")
 
-    # Get Sponsors
-    sponsor_tags = page_soup.find_all('strong', string='Sponsor:')
 
-    if not sponsor_tags:
-        logger.warning(f"No sponsors found for this episode. # Show: {show} Ep: {episode_number}")
-        return []
+    match show_details.host_platform:
+        case 'podhome':
+            parse_strategy = PodhomeSponsorParse()
+        case _:
+            parse_strategy = FiresideSponsorParse()
 
-    sponsors = []
-    for sponsor in sponsor_tags:
-        try:
-            sponsor_link = sponsor.next_sibling.next_sibling
+    try:
+        sp: SponsorParser = SponsorParser(page_soup, show_details, parse_strategy)
+        sponsors = sp.run()
+        logger.info(sponsors)
+    except Exception as e:
+        logger.warning(f"Failed to collect/parse sponsor data! # Show: {show} Ep: {episode_number}\n"
+            f"{e}")
+        sponsors = {}
 
-            # FIXME: eventually get around to do a more "official" solution
-            # Very ugly but works. The goal is to get the hostname of the sponsor
-            # link without the subdomain. It would fail on tlds like "co.uk". but I
-            # don't think JB had any sponsors like that so it's fine.
-            sponsor_slug = ".".join(urlparse(sponsor_link['href']).hostname.split(".")[-2:])
-            shortname = f"{sponsor_slug}-{show_details.acronym}".lower()
-            sponsors.append(shortname)
+    SPONSORS.update(sponsors)
 
-            filename = f'{shortname}.md'
-
-            description = " ".join([sponsor_link.find_next('strong').text, sponsor_link.find_next('strong').next_sibling.text])
-
-            if sponsor_link and not SPONSORS.get(filename):
-                SPONSORS.update({
-                    filename: Sponsor(
-                        shortname=shortname,
-                        title=sponsor_link.text.strip(),
-                        description=description,
-                        link=sponsor_link.get('href')
-                    )
-                })
-        except Exception as e:
-            logger.warning(f"Failed to collect/parse sponsor data! # Show: {show} Ep: {episode_number}\n"
-                           f"{e}")
-        except NavigableString:
-            pass
-
-    return sponsors
+    return [key for key in sponsors.keys()]
 
 def parse_episode_number(title: str) -> str:
     # return re.match(r'.*?(\d+):', title).groups()[0]

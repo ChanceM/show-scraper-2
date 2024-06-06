@@ -8,6 +8,7 @@ class ShowDetails(BaseModel):
     jb_url: HttpUrl
     acronym: str
     name: str
+    host_platform: str
 
 class ConfigData(BaseModel):
     shows: Dict[str,ShowDetails]
