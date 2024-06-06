@@ -17,9 +17,8 @@ class FiresideSponsorParse(SponsorParseStrategy):
         sponsors: Dict[str, Sponsor] = {}
 
          # Get only the links of all the sponsors
-        sponsors_ul = page.find('div',  attrs={'class':'episode-sponsors'})
-        sponsors_ul = sponsors_ul.find('ul')
-        print(sponsors_ul)
+        sponsors_ul = page.find('div',  attrs={'class':'episode-sponsors'}).find('ul')
+
         if not sponsors_ul:
             return sponsors
 

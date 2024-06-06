@@ -86,7 +86,6 @@ def parse_sponsors(page_url: AnyHttpUrl, episode_number: str, show: str, show_de
     try:
         sp: SponsorParser = SponsorParser(page_soup, show_details, parse_strategy)
         sponsors = sp.run()
-        logger.info(sponsors)
     except Exception as e:
         logger.warning(f"Failed to collect/parse sponsor data! # Show: {show} Ep: {episode_number}\n"
             f"{e}")
