@@ -22,6 +22,7 @@ from models.item import Item
 from models.podcast import Person
 from models.sponsor import Sponsor
 from models.strategies.sponsor import FiresideSponsorParse, PodhomeSponsorParse, SponsorParser
+from models.strategies.tag import FiresideTagParse, PodhomeTagParse, TagParser
 
 
 # The sponsors' data is collected into this global when episode files are scraped.
@@ -93,7 +94,28 @@ def parse_sponsors(page_url: AnyHttpUrl, episode_number: str, show: str, show_de
 
     SPONSORS.update(sponsors)
 
-    return [key for key in sponsors.keys()]
+    # return [key for key in sponsors.keys()]
+    return sponsors.keys()
+
+def parse_tags(page_url: AnyHttpUrl, episode_number: str, show: str, show_details: ShowDetails) -> List[str]:
+    response = requests.get(page_url,)
+    page_soup = BeautifulSoup(response.text, features="html.parser")
+
+    match show_details.host_platform:
+        case 'podhome':
+            parse_strategy = PodhomeTagParse()
+        case _:
+            parse_strategy = FiresideTagParse()
+
+    try:
+        tag_parser: TagParser = TagParser(page_soup, show_details, parse_strategy)
+        tags = tag_parser.run()
+    except Exception as e:
+        logger.warning(f"Failed to collect/parse tags! # Show: {show} Ep: {episode_number}\n"
+            f"{e}")
+        tags = []
+
+    return tags
 
 def parse_episode_number(title: str) -> str:
     # return re.match(r'.*?(\d+):', title).groups()[0]
@@ -112,6 +134,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
         return
 
     sponsors = parse_sponsors(item.link, episode_number,show,show_details)
+    tags = parse_tags(item.link, episode_number,show,show_details)
 
 
     description_soup = BeautifulSoup(item.description, features="html.parser")
@@ -145,7 +168,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 title=get_plain_title(item.title),
                 description=item.itunes_subtitle.root if item.itunes_subtitle else ' '.join(description_parts),
                 date=item.pubDate,
-                tags=[],
+                tags=tags,
                 hosts=list(map(get_canonical_username, list(filter(lambda person: person.role in Settings.Host_Roles, item.podcast_persons)))),
                 guests=list(map(get_canonical_username, list(filter(lambda person: person.role in Settings.Guest_Roles, item.podcast_persons)))),
                 sponsors=sponsors,
