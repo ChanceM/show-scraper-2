@@ -6,20 +6,20 @@ shows:
     acronym: twib
     name: This Week In Bitcoin
     host_platform: podhome
-  linux-unplugged:
-    show_rss: https://feeds.jupiterbroadcasting.com/lup
-    show_url: https:/linux-unplugged.show
-    jb_url:  https://www.jupiterbroadcasting.com/show/linux-unplugged
-    acronym: lup
-    name: Linux Unplugged
-    host_platform: fireside
-  office-hours:
-    show_rss: https://feeds.us-east-1.linodeobjects.com/office/office.xml
-    show_url: https://www.officehours.hair
-    jb_url: https://www.jupiterbroadcasting.com/show/office
-    acronym: OH
-    name: Office Hours
-    host_platform: fireside
+  # linux-unplugged:
+  #   show_rss: https://feeds.jupiterbroadcasting.com/lup
+  #   show_url: https:/linux-unplugged.show
+  #   jb_url:  https://www.jupiterbroadcasting.com/show/linux-unplugged
+  #   acronym: lup
+  #   name: Linux Unplugged
+  #   host_platform: fireside
+  # office-hours:
+  #   show_rss: https://feeds.us-east-1.linodeobjects.com/office/office.xml
+  #   show_url: https://www.officehours.hair
+  #   jb_url: https://www.jupiterbroadcasting.com/show/office
+  #   acronym: OH
+  #   name: Office Hours
+  #   host_platform: fireside
 
 # Map usernames of hosts/guests as they appear in Fireside to how we want to
 # save them in the new website. This also helps to avoid duplicates
