@@ -12,20 +12,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: 'Checkout jupiterbroadcasting.com'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: main
         path: ./jbsite
 
     - name: 'Checkout show-scraper'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: ChanceM/show-scraper-2
         ref: main
         path: ./show-scraper
 
     - name: 'Setup Python'
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         architecture: 'x64'
@@ -39,8 +39,13 @@ jobs:
         cd ./show-scraper
         DATA_DIR=../jbsite LATEST_ONLY=true pipenv run python ./scraper.py
 
-    - name: 'Commit'
-      uses: stefanzweifel/git-auto-commit-action@v4
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
       with:
-        commit_message: 'Automatically scraped and committed via a GitHub Action.'
-        repository: ./jbsite
+          commit-message: Automatically scraped and committed via a GitHub Action.
+          title: Add episode scraped episode.
+          body: Automatically scraped by show-scraper-2.
+          base: main
+          labels: automated-pr
+          branch: release/automatic-episode-scrape
+          delete-branch: true
