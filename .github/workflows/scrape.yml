@@ -46,6 +46,7 @@ jobs:
           title: Add episode scraped episode.
           body: Automatically scraped by show-scraper-2.
           base: main
+          path: ./jbsite
           labels: automated-pr
           branch: release/automatic-episode-scrape
           delete-branch: true
