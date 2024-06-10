@@ -6,6 +6,8 @@ on:
   schedule:
     - cron:  '0 0,12 * * *'  # At midnight & noon UTC
   workflow_dispatch:   # Allows you to run this workflow manually from the Actions tab
+permissions:
+  contents: write
 
 jobs:
   scrape:
