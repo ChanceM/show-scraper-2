@@ -14,6 +14,7 @@ jobs:
     - name: 'Checkout jupiterbroadcasting.com'
       uses: actions/checkout@v4
       with:
+        repository: JupiterBroadcasting/jupiterbroadcasting.com
         ref: main
         path: ./jbsite
 
@@ -47,7 +48,7 @@ jobs:
           body: Automatically scraped by show-scraper-2.
           base: main
           path: ./jbsite
-          push-to-fork: ChanceM/jupiterbroadcasting.com
+          #push-to-fork: ChanceM/jupiterbroadcasting.com
           labels: automated-pr
           branch: release/automatic-episode-scrape
           delete-branch: true
