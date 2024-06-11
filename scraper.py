@@ -94,8 +94,7 @@ def parse_sponsors(page_url: AnyHttpUrl, episode_number: str, show: str, show_de
 
     SPONSORS.update(sponsors)
 
-    # return [key for key in sponsors.keys()]
-    return sponsors.keys()
+    return list(map(lambda sponsor: sponsors[sponsor].shortname, sponsors))
 
 def parse_tags(page_url: AnyHttpUrl, episode_number: str, show: str, show_details: ShowDetails) -> List[str]:
     response = requests.get(page_url,)
@@ -134,8 +133,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
         return
 
     sponsors = parse_sponsors(item.link, episode_number,show,show_details)
-    tags = parse_tags(item.link, episode_number,show,show_details)
-
+    tags = sorted(item.itunes_keywords.keywords) if item.itunes_keywords else parse_tags(item.link, episode_number,show,show_details)
 
     description_soup = BeautifulSoup(item.description, features="html.parser")
     for br in description_soup.select('br'):
@@ -155,7 +153,10 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
 
     if node != None:
         node = parent if type(parent := node.parent) is Tag else node
-        while type((previous := node.previous) ) is NavigableString:
+        # handle twib ep10 - description / sponsor wrapped in p tag.
+        if type(parent.previous) != NavigableString and parent.name != '[document]':
+            description_parts.insert(0, parent.contents[0])
+        while type((previous := node.previous)) is NavigableString:
             description_parts.insert(0, previous.text.strip())
             node = previous
 

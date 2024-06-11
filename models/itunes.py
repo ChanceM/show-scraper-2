@@ -1,7 +1,7 @@
 from datetime import time
 from pydantic_xml import attr, element, wrapped
 from pydantic import EmailStr, PositiveInt, AnyHttpUrl, constr, field_validator
-from typing import Optional, Literal
+from typing import List, Optional, Literal
 from models.scraper import ScraperBaseXmlModel, ScraperRootXmlModel, NSMAP
 
 NSMAP = {'itunes':NSMAP['itunes']}
@@ -71,3 +71,11 @@ EpisodeType: Optional[EPISODE_TYPES] = element(tag='episodeType', default='Full'
 
 class Subtitle(ScraperRootXmlModel, tag='subtitle', ns='itunes', nsmap=NSMAP):
     root: str = constr(strip_whitespace=True)
+
+class Keywords(ScraperBaseXmlModel, tag='keywords', ns='itunes', nsmap=NSMAP):
+    keywords: str = constr(strip_whitespace=True)
+
+    @field_validator('keywords', mode='after')
+    @classmethod
+    def validate_keywords(cls, value: str) -> List[str]:
+       return [keyword.lower().strip() for keyword in value.split(',')]
