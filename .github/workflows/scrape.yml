@@ -52,6 +52,5 @@ jobs:
           base: main
           path: ./jbsite
           push-to-fork: ChanceM/jupiterbroadcasting.com
-          labels: automated-pr
           branch: release/automatic-episode-scrape
           delete-branch: true
