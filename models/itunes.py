@@ -78,4 +78,4 @@ class Keywords(ScraperBaseXmlModel, tag='keywords', ns='itunes', nsmap=NSMAP):
     @field_validator('keywords', mode='after')
     @classmethod
     def validate_keywords(cls, value: str) -> List[str]:
-       return [keyword.lower().strip() for keyword in value.split(',')]
+       return [keyword.lower().strip() for keyword in value.rstrip(',').split(',')]
