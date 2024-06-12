@@ -9,6 +9,7 @@ def test_itunes_explicit():
     assert Explicit(root=1).root == 'yes'
     assert Explicit(root=0).root == 'no'
     assert Explicit(root=0).to_xml() == b'<itunes:explicit xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">no</itunes:explicit>'
+    assert Explicit(root=0) == Explicit.from_xml(b'<itunes:explicit xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">no</itunes:explicit>')
 
 
 def test_itunes_duration():
@@ -21,10 +22,12 @@ def test_itunes_duration():
     assert Duration(root=90).root == time.fromisoformat('00:01:30')
     assert Duration(root=4205).root == time.fromisoformat('01:10:05')
     assert Duration(root=4205).to_xml() == b'<itunes:duration xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">01:10:05</itunes:duration>'
+    assert Duration(root=4205) == Duration.from_xml(b'<itunes:duration xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">01:10:05</itunes:duration>')
 
 def test_itunes_keywords():
     assert Keywords(keywords='tag1,tag2,tag3').keywords == ['tag1','tag2','tag3']
     assert Keywords(keywords='tag1,tag2,tag3').keywords[0] == 'tag1'
     assert Keywords(keywords='tag1,tag2,tag3').keywords[1] == 'tag2'
     assert Keywords(keywords='tag1,tag2,tag3').keywords[2] == 'tag3'
+    assert Keywords.from_xml(b'<itunes:keywords xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">tag1,tag2,tag3</itunes:keywords>') == Keywords(keywords='tag1,tag2,tag3')
     assert Keywords(keywords='tag1,tag2,tag3').to_xml() == b'<itunes:keywords xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">tag1,tag2,tag3</itunes:keywords>'
