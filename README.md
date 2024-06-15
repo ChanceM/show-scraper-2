@@ -1,8 +1,8 @@
-# JupiterBroadcasting Show Scraper for Podhome.fm
+# JupiterBroadcasting Show Scraper for Podcast 2.0 Feeds.
 
  ---
 
-Scraper written in python to convert episodes hosted on Podhome into Hugo files.
+Scraper written in python to convert episodes hosted in a podcast 2.0 Feed on various platforms into Hugo files.
 
 Originally based on [JupiterBroadcasting show-scraper](https://github.com/JupiterBroadcasting/show-scraper/blob/main/scraper.py)
 
