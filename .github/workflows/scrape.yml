@@ -47,7 +47,7 @@ jobs:
       with:
           token: ${{ secrets.SS2_PAT }}
           commit-message: Automatically scraped and committed via a GitHub Action.
-          title: Add episode scraped episode.
+          title: Add scraped episode(s)
           body: Automatically scraped by show-scraper-2.
           base: main
           path: ./jbsite
