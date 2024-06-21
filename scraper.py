@@ -142,6 +142,10 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
     links_label = description_soup.find('strong', string=re.compile(r'.*Links|Show.*',re.IGNORECASE))
     if links_label:
         episode_links = ''.join([str(i) for i in links_label.find_all_next(['strong','li'])])
+        # TWIB Allow for affiliate links
+        if links_label.text == 'Affiliate LINKS:':
+            links_label.string.replace_with(links_label.text.title())
+            episode_links = str(links_label) + episode_links
     else:
         episode_links = ''.join([str(i) for i in description_soup.find_all(['strong','li'])])
     episode_links = re.sub(r'</li><strong>','</li><br/><strong>',episode_links)
