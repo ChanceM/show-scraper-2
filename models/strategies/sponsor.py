@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+import re
+from types import NoneType
 from typing import Dict
 from urllib.parse import urlparse
 
@@ -57,7 +59,7 @@ class PodhomeSponsorParse(SponsorParseStrategy):
     def parse(self, page: BeautifulSoup, show_details: ShowDetails):
         sponsors: Dict[str, Sponsor] = {}
 
-        sponsor_tags = page.find_all('strong', string='Sponsor:') or page.find_all('div', class_='episode-sponsors')
+        sponsor_tags = page.find_all('strong', string=re.compile('Sponsor:')) or page.find_all('div', class_='episode-sponsors')
 
         if not sponsor_tags:
             return sponsors
@@ -75,7 +77,7 @@ class PodhomeSponsorParse(SponsorParseStrategy):
 
                 filename = f'{shortname}.md'
 
-                description = " ".join([sponsor_link.find_next('strong').text, sponsor_link.find_next('strong').next_sibling.text])
+                description = " ".join([sponsor_link.find_next('strong').text if type(sponsor_link.find_next('strong')) != NoneType else '', sponsor_link.find_next('strong').next_sibling.text if type(sponsor_link.find_next('strong')) != NoneType else ''])
 
                 if sponsor_link and not sponsors.get(filename):
                     sponsors.update({
