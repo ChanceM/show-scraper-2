@@ -1,6 +1,6 @@
 from pydantic_xml import attr, element
-from pydantic import constr, EmailStr, UUID5, AnyHttpUrl, PositiveInt, field_validator
-from typing import Optional, Tuple, Literal
+from pydantic import constr, EmailStr, UUID5, AnyHttpUrl, PositiveInt, field_validator, model_validator
+from typing import Any, Optional, Tuple, Literal
 from models.scraper import ScraperBaseXmlModel, ScraperRootXmlModel, NSMAP
 from uuid import UUID
 
@@ -106,6 +106,17 @@ GROUP_VALUES = Literal[
 INTEGRITY_VALUES = Literal[
     "sri",
     "pgp-signature"
+]
+
+SOCIAL_INTERACT_PROTOCOL_VALUES = Literal[
+    "disabled",
+    "activitypub",
+    "twitter",
+    "lightning",
+    "bluesky",
+    "hive",
+    "matrix",
+    "nostr",
 ]
 
 class Podping(ScraperBaseXmlModel, tag='podping', ns='podcast', nsmap=NSMAP):
@@ -255,3 +266,29 @@ class AlternateEnclosure(ScraperBaseXmlModel, tag='alternateEnclosure', ns='podc
     defualt: Optional[bool] = attr(defualt=None)
     integrity: Optional[Integrity] = None
     sources: Tuple[Source,...] = element(tag='source')
+
+class SocialInteract(ScraperBaseXmlModel, tag='socialInteract', ns='podcast', nsmap=NSMAP):
+    protocol: Literal[SOCIAL_INTERACT_PROTOCOL_VALUES] = attr()
+    uri: Optional[AnyHttpUrl] = attr(default=None)
+    accountId: Optional[str] = attr(default=None)
+    accountUrl: Optional[AnyHttpUrl] = attr(default=None)
+    priority: Optional[PositiveInt] = attr(default=None)
+
+    @field_validator('uri',mode='before')
+    @classmethod
+    def validate_uri(cls, value, values):
+        print(values.data['protocol'])
+        if values.data['protocol'] != 'disabled' and value == None:
+            raise ValueError('uri is required')
+        return value
+
+
+    @model_validator(mode='after')
+    @classmethod
+    def check_disabled(cls, data):
+        if data.protocol == 'disabled':
+            data.uri = None
+            data.accountId = None
+            data.accountUrl = None
+            data.priority = None
+        return data

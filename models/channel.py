@@ -10,6 +10,7 @@ from models.podcast import (
     License,
     Location,
     Podping,
+    SocialInteract,
     Trailer,
     UpdateFrequency,
     Value,
@@ -84,6 +85,7 @@ class Channel(ScraperBaseXmlModel, tag="channel"):
     podcast_persons: Optional[Tuple[Person, ...]] = None
     podcast_podping: Optional[Podping] = None
     podcast_podroll: Optional[Podroll] = None
+    podcast_socialInteract: Optional[SocialInteract] = None
     podcast_trailer: Optional[Tuple[Trailer, ...]] = None
     podcast_updateFrequency: Optional[UpdateFrequency] = None
     podcast_value: Optional[Value] = None
