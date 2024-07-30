@@ -28,6 +28,7 @@ class ScraperBaseXmlModel(BaseXmlModel):
     def __init_subclass__(self, **kwargs):
         super().__init_subclass__(**kwargs)
         self.__xml_search_mode__ = 'unordered'
+        self.__xml_skip_empty__ = True
 
     model_config = ConfigDict(extras=Settings().Extras)
 
