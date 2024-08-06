@@ -139,6 +139,12 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
     for br in description_soup.select('br'):
         br.decompose()
 
+    # Remove Sponsor Links found in the description
+    for anchor in description_soup.select('ul > li > a[rel=nofollow]'):
+        if anchor.parent == None:
+            continue
+        anchor.parent.decompose()
+
     links_label = description_soup.find('strong', string=re.compile(r'.*Links|Show.*',re.IGNORECASE))
     if links_label:
         episode_links = ''.join([str(i) for i in links_label.find_all_next(['strong','li'])])
