@@ -2,7 +2,7 @@ import os
 from pydantic_xml import attr, element
 from typing import Tuple, Optional
 from models .scraper import ScraperBaseXmlModel
-from models.podcast import AlternateEnclosure, Chapters, Episode, License, Location, Season, SocialInteract, Soundbite, Transcript, Value, Images, Person
+from models.podcast import AlternateEnclosure, Chapters, Episode, License, Location, Season, SocialInteract, Soundbite, Transcript, Txt, Value, Images, Person
 from models.itunes import Keywords, Subtitle, Title, ItunesImage, Author, Explicit,  Duration, ItunesEpisode, EpisodeType
 from pydantic import constr, AnyHttpUrl, field_validator
 from datetime import datetime
@@ -43,6 +43,7 @@ class Item(ScraperBaseXmlModel, tag='item'):
     podcast_soundbite: Optional[Tuple[Soundbite, ...]] = []
     podcast_socialInteract: Optional[SocialInteract] = None
     podcast_transcripts: Optional[Tuple[Transcript, ...]] = []
+    podcast_txt: Optional[Tuple[Txt, ...]] = None
     podcast_value: Optional[Value] = None
 
     @field_validator('pubDate', mode='before')

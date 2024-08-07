@@ -1,4 +1,4 @@
-from models.podcast import Block, Guid, Episode, SocialInteract
+from models.podcast import Block, Guid, Episode, SocialInteract, Txt
 from uuid import UUID
 from pydantic import ValidationError
 import pytest
@@ -28,3 +28,11 @@ def test_podcast_block():
     assert Block.from_xml(b'<podcast:block xmlns:podcast="https://podcastindex.org/namespace/1.0">yes</podcast:block>') == Block(block="yes")
     with pytest.raises(ValidationError):
         assert Block.from_xml(b'<podcast:block xmlns:podcast="https://podcastindex.org/namespace/1.0" id="invalid">yes</podcast:block>') == Block(block="yes",id='invalid')
+
+def test_podcast_txt():
+    assert Txt(txt='sample').txt == 'sample'
+    assert Txt(txt='sample',purpose='verify').purpose == 'verify'
+    assert Txt(txt='S6lpp-7ZCn8-dZfGc-OoyaG',purpose='verify').to_xml() == b'<podcast:txt xmlns:podcast="https://podcastindex.org/namespace/1.0" purpose="verify">S6lpp-7ZCn8-dZfGc-OoyaG</podcast:txt>'
+    assert Txt(txt='S6lpp-7ZCn8-dZfGc-OoyaG').to_xml() == b'<podcast:txt xmlns:podcast="https://podcastindex.org/namespace/1.0">S6lpp-7ZCn8-dZfGc-OoyaG</podcast:txt>'
+    assert Txt.from_xml(b'<podcast:txt xmlns:podcast="https://podcastindex.org/namespace/1.0" purpose="verify">S6lpp-7ZCn8-dZfGc-OoyaG</podcast:txt>') == Txt(txt='S6lpp-7ZCn8-dZfGc-OoyaG',purpose='verify')
+    assert Txt.from_xml(b'<podcast:txt xmlns:podcast="https://podcastindex.org/namespace/1.0">S6lpp-7ZCn8-dZfGc-OoyaG</podcast:txt>') == Txt(txt='S6lpp-7ZCn8-dZfGc-OoyaG')

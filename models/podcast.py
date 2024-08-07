@@ -357,3 +357,7 @@ class SocialInteract(ScraperBaseXmlModel, tag='socialInteract', ns='podcast', ns
 class Block(ScraperBaseXmlModel, tag='block', ns='podcast', nsmap=NSMAP):
     id: Optional[Literal[SERVICE_VALUES]] = attr(default=None)
     block: Literal['yes','no']
+
+class Txt(ScraperBaseXmlModel, tag='txt', ns='podcast', nsmap=NSMAP):
+    purpose: Optional[str] = attr(default=None)
+    txt: str
