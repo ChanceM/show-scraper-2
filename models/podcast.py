@@ -119,6 +119,67 @@ SOCIAL_INTERACT_PROTOCOL_VALUES = Literal[
     "nostr",
 ]
 
+SERVICE_VALUES = Literal[
+    'acast',
+    'amazon',
+    'anchor',
+    'apple',
+    'audible',
+    'audioboom',
+    'backtracks',
+    'bitcoin',
+    'blubrry',
+    'buzzsprout',
+    'captivate',
+    'castos',
+    'castopod',
+    'facebook',
+    'fireside',
+    'fyyd',
+    'google',
+    'gpodder',
+    'hypercatcher',
+    'kasts',
+    'libsyn',
+    'mastodon',
+    'megafono',
+    'megaphone',
+    'omnystudio',
+    'overcast',
+    'paypal',
+    'pinecast',
+    'podbean',
+    'podcastaddict',
+    'podcastguru',
+    'podcastindex',
+    'podcasts',
+    'podchaser',
+    'podcloud',
+    'podfriend',
+    'podiant',
+    'podigee',
+    'podnews',
+    'podomatic',
+    'podserve',
+    'podverse',
+    'redcircle',
+    'relay',
+    'resonaterecordings',
+    'rss',
+    'shoutengine',
+    'simplecast',
+    'slack',
+    'soundcloud',
+    'spotify',
+    'spreaker',
+    'tiktok',
+    'transistor',
+    'twitter',
+    'whooshkaa',
+    'youtube',
+    'zencast',
+]
+
 class Podping(ScraperBaseXmlModel, tag='podping', ns='podcast', nsmap=NSMAP):
     usesPodping: bool = attr()
 
@@ -292,3 +353,7 @@ class SocialInteract(ScraperBaseXmlModel, tag='socialInteract', ns='podcast', ns
             data.accountUrl = None
             data.priority = None
         return data
+
+class Block(ScraperBaseXmlModel, tag='block', ns='podcast', nsmap=NSMAP):
+    id: Optional[Literal[SERVICE_VALUES]] = attr(default=None)
+    block: Literal['yes','no']
