@@ -20,7 +20,8 @@ MEDIUM_VALUES = Literal[
     'newsletter',
     'newsletterL',
     'blog',
-    'mixed'
+    'mixed',
+    'publisher',
 ]
 
 ROLE_VALUES = Literal[
@@ -192,7 +193,7 @@ class Recipient(ScraperBaseXmlModel, tag='valueRecipient', ns='podcast', nsmap=N
     split: int = attr()
     fee: Optional[bool] = attr(default=None)
 
-class RemoteItem(ScraperBaseXmlModel, tag='remoteITem', ns='podcast', nsmap=NSMAP):
+class RemoteItem(ScraperBaseXmlModel, tag='remoteItem', ns='podcast', nsmap=NSMAP):
     feedGuid: UUID5 | str = attr()
     feedUrl: Optional[str] = attr(default=None)
     itemGuid: Optional[str] = attr(default=None)
@@ -247,7 +248,7 @@ class Person(ScraperBaseXmlModel, tag='person', ns='podcast', nsmap=NSMAP):
         return value.title()
 
 class Podroll(ScraperBaseXmlModel, tag='podroll', ns='podcast', nsmap=NSMAP):
-    remoteItems: Tuple[RemoteItem, ...] = element(tag='remoteItem')
+    remoteItems: Tuple[RemoteItem, ...] = element(tag='remoteItem', ns='podcast', nsmap=NSMAP)
 
 class Chapters(ScraperBaseXmlModel, tag='chapters', ns='podcast', nsmap=NSMAP):
     url: AnyHttpUrl = attr()
@@ -361,3 +362,13 @@ class Block(ScraperBaseXmlModel, tag='block', ns='podcast', nsmap=NSMAP):
 class Txt(ScraperBaseXmlModel, tag='txt', ns='podcast', nsmap=NSMAP):
     purpose: Optional[str] = attr(default=None)
     txt: str
+
+class Publisher(ScraperBaseXmlModel, tag='publisher', ns='podcast', nsmap=NSMAP):
+    remoteItem: RemoteItem
+
+    @field_validator('remoteItem', mode='after')
+    @classmethod
+    def check_remoteItem(cls, data: RemoteItem):
+        if data.medium != 'publisher':
+            raise ValueError('RemoteItem medium attribute must be "publisher".')
+        return data
