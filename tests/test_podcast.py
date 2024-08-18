@@ -1,4 +1,4 @@
-from models.podcast import Block, Guid, Episode, SocialInteract, Txt
+from models.podcast import Block, Guid, Episode, Publisher, RemoteItem, SocialInteract, Txt
 from uuid import UUID
 from pydantic import ValidationError
 import pytest
@@ -36,3 +36,11 @@ def test_podcast_txt():
     assert Txt(txt='S6lpp-7ZCn8-dZfGc-OoyaG').to_xml() == b'<podcast:txt xmlns:podcast="https://podcastindex.org/namespace/1.0">S6lpp-7ZCn8-dZfGc-OoyaG</podcast:txt>'
     assert Txt.from_xml(b'<podcast:txt xmlns:podcast="https://podcastindex.org/namespace/1.0" purpose="verify">S6lpp-7ZCn8-dZfGc-OoyaG</podcast:txt>') == Txt(txt='S6lpp-7ZCn8-dZfGc-OoyaG',purpose='verify')
     assert Txt.from_xml(b'<podcast:txt xmlns:podcast="https://podcastindex.org/namespace/1.0">S6lpp-7ZCn8-dZfGc-OoyaG</podcast:txt>') == Txt(txt='S6lpp-7ZCn8-dZfGc-OoyaG')
+
+def test_podacst_remoteItem():
+    assert RemoteItem(feedGuid="003af0a0-6a45-55cf-b765-68e3d349551a",medium='publisher').to_xml() == b'<podcast:remoteItem xmlns:podcast="https://podcastindex.org/namespace/1.0" feedGuid="003af0a0-6a45-55cf-b765-68e3d349551a" medium="publisher"/>'
+
+def test_podacst_publisher():
+    assert Publisher(remoteItem=RemoteItem(feedGuid="003af0a0-6a45-55cf-b765-68e3d349551a", medium='publisher')).remoteItem == RemoteItem(feedGuid="003af0a0-6a45-55cf-b765-68e3d349551a", medium='publisher')
+    assert Publisher.from_xml(b'<podcast:publisher xmlns:podcast="https://podcastindex.org/namespace/1.0"><podcast:remoteItem xmlns:podcast="https://podcastindex.org/namespace/1.0" medium="publisher" feedGuid="003af0a0-6a45-55cf-b765-68e3d349551a"/></podcast:publisher>') == Publisher(remoteItem=RemoteItem(feedGuid="003af0a0-6a45-55cf-b765-68e3d349551a", medium='publisher'))
+    assert Publisher(remoteItem=RemoteItem(feedGuid="003af0a0-6a45-55cf-b765-68e3d349551a", medium='publisher')).to_xml() == b'<podcast:publisher xmlns:podcast="https://podcastindex.org/namespace/1.0"><podcast:remoteItem feedGuid="003af0a0-6a45-55cf-b765-68e3d349551a" medium="publisher"/></podcast:publisher>'
