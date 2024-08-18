@@ -1,4 +1,4 @@
-from models.podcast import Block, Guid, Episode, Publisher, RemoteItem, SocialInteract, Txt
+from models.podcast import Block, Chat, Guid, Episode, Publisher, RemoteItem, SocialInteract, Txt
 from uuid import UUID
 from pydantic import ValidationError
 import pytest
@@ -46,3 +46,11 @@ def test_podacst_publisher():
     assert Publisher(remoteItem=RemoteItem(feedGuid="003af0a0-6a45-55cf-b765-68e3d349551a", medium='publisher')).to_xml() == b'<podcast:publisher xmlns:podcast="https://podcastindex.org/namespace/1.0"><podcast:remoteItem feedGuid="003af0a0-6a45-55cf-b765-68e3d349551a" medium="publisher"/></podcast:publisher>'
     with pytest.raises(ValidationError):
         assert Publisher(remoteItem=RemoteItem(feedGuid="003af0a0-6a45-55cf-b765-68e3d349551a", medium='podcast'))
+
+def test_podcast_chat():
+    assert Chat(server="irc.zeronode.net", protocol="irc", accountId="@jsmith", space="#myawesomepodcast").to_xml() == b'<podcast:chat xmlns:podcast="https://podcastindex.org/namespace/1.0" server="irc.zeronode.net" protocol="irc" accountId="@jsmith" space="#myawesomepodcast"/>'
+    assert Chat(server="irc.zeronode.net", protocol="irc").to_xml() == b'<podcast:chat xmlns:podcast="https://podcastindex.org/namespace/1.0" server="irc.zeronode.net" protocol="irc"/>'
+    assert Chat.from_xml(b'<podcast:chat xmlns:podcast="https://podcastindex.org/namespace/1.0" server="irc.zeronode.net" protocol="irc"/>') == Chat(server="irc.zeronode.net", protocol="irc")
+    assert Chat.from_xml(b'<podcast:chat xmlns:podcast="https://podcastindex.org/namespace/1.0" server="irc.zeronode.net" protocol="irc" accountId="@jsmith"/>') == Chat(server="irc.zeronode.net", protocol="irc", accountId="@jsmith")
+    with pytest.raises(ValidationError):
+        assert Chat(server="irc.zeronode.net")

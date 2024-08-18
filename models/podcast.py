@@ -372,3 +372,9 @@ class Publisher(ScraperBaseXmlModel, tag='publisher', ns='podcast', nsmap=NSMAP)
         if data.medium != 'publisher':
             raise ValueError('RemoteItem medium attribute must be "publisher".')
         return data
+
+class Chat(ScraperBaseXmlModel, tag='chat', ns='podcast', nsmap=NSMAP):
+    server: str = attr()
+    protocol: str = attr()
+    accountId: Optional[str] = attr(default=None)
+    space: Optional[str] = attr(default=None)

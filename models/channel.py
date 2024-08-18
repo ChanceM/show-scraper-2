@@ -7,6 +7,7 @@ from typing import Tuple, Optional
 from models.scraper import ScraperBaseXmlModel
 from models.podcast import (
     Block,
+    Chat,
     Funding,
     License,
     Location,
@@ -78,6 +79,7 @@ class Channel(ScraperBaseXmlModel, tag="channel"):
     itunes_type: Optional[str] = Type
     pubDate: Optional[str] = element(default=None)
     podcast_block: Optional[Tuple[Block, ...]] = None
+    podcast_chat: Optional[Chat] = None
     podcast_funding: Optional[Funding] = None
     podcast_guid: Optional[Guid] = None
     podcast_images: Optional[Images] = None

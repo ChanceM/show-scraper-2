@@ -2,7 +2,7 @@ import os
 from pydantic_xml import attr, element
 from typing import Tuple, Optional
 from models .scraper import ScraperBaseXmlModel
-from models.podcast import AlternateEnclosure, Chapters, Episode, License, Location, Season, SocialInteract, Soundbite, Transcript, Txt, Value, Images, Person
+from models.podcast import AlternateEnclosure, Chapters, Chat, Episode, License, Location, Season, SocialInteract, Soundbite, Transcript, Txt, Value, Images, Person
 from models.itunes import Keywords, Subtitle, Title, ItunesImage, Author, Explicit,  Duration, ItunesEpisode, EpisodeType
 from pydantic import constr, AnyHttpUrl, field_validator
 from datetime import datetime
@@ -34,6 +34,7 @@ class Item(ScraperBaseXmlModel, tag='item'):
     itunes_title: Optional[str] = Title
     podcast_alternateEnclosure: Optional[AlternateEnclosure] = None
     podcast_chapters: Optional[Chapters] = None
+    podcast_chat: Optional[Chat] = None
     podcast_episode: Optional[Episode] = None
     podcast_images: Optional[Images] = None
     podcast_license: Optional[License] = None
