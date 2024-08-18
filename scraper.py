@@ -75,6 +75,8 @@ def get_canonical_username(username: Person) -> str:
 
 def parse_sponsors(page_url: AnyHttpUrl, episode_number: str, show: str, show_details: ShowDetails) -> List[str]:
     response = requests.get(page_url,)
+    response.raise_for_status()
+
     page_soup = BeautifulSoup(response.text, features="html.parser")
 
 
@@ -132,7 +134,14 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
         logger.warning(f"Skipping saving `{output_file}` as it already exists")
         return
 
-    sponsors = parse_sponsors(item.link, episode_number,show,show_details)
+    try:
+        sponsors = parse_sponsors(item.link, episode_number,show,show_details)
+    except requests.HTTPError as e:
+        logger.exception(
+            f"Skipping {show_details.name} episode {episode_number} could not get episode page.\n"
+            f"{e}"
+        )
+        return
     tags = sorted(item.itunes_keywords.keywords) if item.itunes_keywords else parse_tags(item.link, episode_number,show,show_details)
 
     description_soup = BeautifulSoup(item.description, features="html.parser")
