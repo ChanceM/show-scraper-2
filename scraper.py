@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import concurrent.futures
+from html import escape
 import sys
 import re
 import requests
@@ -164,6 +165,13 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
     else:
         episode_links = ''.join([str(i) for i in description_soup.find_all(['strong','li'])])
     episode_links = re.sub(r'</li><strong>','</li><br/><strong>',episode_links)
+
+    episode_links = BeautifulSoup(episode_links, features="html.parser")
+
+    # Escape title attr that has quotes
+    for link in episode_links.find_all('a'):
+            if link.has_attr('title'):
+                link['title'] = escape(link['title'])
 
     item.description = str(episode_links)
     description_parts = []
