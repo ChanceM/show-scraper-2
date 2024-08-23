@@ -4,9 +4,10 @@ import concurrent.futures
 from html import escape
 import sys
 import re
+from types import NoneType
 import requests
 import yaml
-from bs4 import BeautifulSoup, NavigableString, Tag
+from bs4 import BeautifulSoup, NavigableString, SoupStrainer, Tag
 from typing import Union, Optional, Dict, List
 from pydantic import AnyHttpUrl
 from frontmatter import Post, dumps
@@ -149,31 +150,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
     for br in description_soup.select('br'):
         br.decompose()
 
-    # Remove Sponsor Links found in the description
-    for anchor in description_soup.select('ul > li > a[rel=nofollow]'):
-        if anchor.parent == None:
-            continue
-        anchor.parent.decompose()
-
-    links_label = description_soup.find('strong', string=re.compile(r'.*Links|Show.*',re.IGNORECASE))
-    if links_label:
-        episode_links = ''.join([str(i) for i in links_label.find_all_next(['strong','li'])])
-        # TWIB Allow for affiliate links
-        if links_label.text == 'Affiliate LINKS:':
-            links_label.string.replace_with(links_label.text.title())
-            episode_links = str(links_label) + episode_links
-    else:
-        episode_links = ''.join([str(i) for i in description_soup.find_all(['strong','li'])])
-    episode_links = re.sub(r'</li><strong>','</li><br/><strong>',episode_links)
-
-    episode_links = BeautifulSoup(episode_links, features="html.parser")
-
-    # Escape title attr that has quotes
-    for link in episode_links.find_all('a'):
-            if link.has_attr('title'):
-                link['title'] = escape(link['title'])
-
-    item.description = str(episode_links)
+    item.description = get_links(item.description)
     description_parts = []
 
     node = description_soup.find('strong')
@@ -219,6 +196,39 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
     build_participants(item.podcast_persons)
 
     save_file(output_file, episode.get_hugo_md_file_content(), overwrite=Settings.LATEST_ONLY)
+
+def get_links(description: str) -> str:
+    soup = BeautifulSoup(description, features="html.parser", parse_only=SoupStrainer(['strong', 'ul', 'p']))
+    # Remove Sponsor Links found in the description
+    if type(sponsor_p := soup.find('p',string='Sponsored By:')) != NoneType:
+        sponsor_p.find_next('ul').decompose()
+    if type(node := soup.find('strong',string=re.compile(r'.*Links|Show.*',re.IGNORECASE))) != NoneType:
+        while(type(node.previous_element) != NoneType):
+            node_next = node.previous_element
+            if node.text == 'Affiliate LINKS:':
+                node = node_next
+                continue
+            if type(node) != NavigableString:
+                node.decompose()
+            else:
+                node.extract()
+            node = node_next
+
+    soup = BeautifulSoup(str(soup), features="html.parser", parse_only=SoupStrainer(['strong', 'li']))
+
+    for strong in soup.find_all('strong'):
+        if type(strong.previous) == NavigableString:
+            strong.insert_before(BeautifulSoup('<br/>', features="html.parser"))
+        if strong.text == 'Affiliate LINKS:':
+            strong.string.replace_with(strong.text.title())
+
+    # Escape title attr that has quotes
+    for link in soup.find_all('a'):
+        if link.has_attr('title'):
+            link['title'] = escape(link['title'])
+
+    return re.sub(r'\ {2,}\n',r'\n', html2text(str(soup)).strip())
+
 
 def build_participants(participants: List[Person]):
     for participant in list(filter(lambda person: person.role in [*Settings.Host_Roles, *Settings.Guest_Roles], participants)):
