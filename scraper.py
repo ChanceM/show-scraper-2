@@ -150,7 +150,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
     for br in description_soup.select('br'):
         br.decompose()
 
-    item.description = get_links(item.description)
+    episode_links = get_links(item.description)
     description_parts = []
 
     node = description_soup.find('strong')
@@ -190,7 +190,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 jb_url=f'{show_details.jb_url}/{episode_number}',
                 fireside_url=item.link,
                 value=item.podcast_value,
-                episode_links=html2text(item.description)
+                episode_links=episode_links
             )
 
     build_participants(item.podcast_persons)
