@@ -146,23 +146,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
         return
     tags = sorted(item.itunes_keywords.keywords) if item.itunes_keywords else parse_tags(item.link, episode_number,show,show_details)
 
-    description_soup = BeautifulSoup(item.description, features="html.parser")
-    for br in description_soup.select('br'):
-        br.decompose()
-
     episode_links = get_links(item.description)
-    description_parts = []
-
-    node = description_soup.find('strong')
-
-    if node != None:
-        node = parent if type(parent := node.parent) is Tag else node
-        # handle twib ep10 - description / sponsor wrapped in p tag.
-        if type(parent.previous) != NavigableString and parent.name != '[document]':
-            description_parts.insert(0, parent.contents[0])
-        while type((previous := node.previous)) is NavigableString:
-            description_parts.insert(0, previous.text.strip())
-            node = previous
 
     episode = Episode(
                 show_slug=show,
@@ -171,7 +155,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 episode_padded=episode_number_padded,
                 episode_guid=item.guid.guid,
                 title=get_plain_title(item.title),
-                description=item.itunes_subtitle.root if item.itunes_subtitle else ' '.join(description_parts),
+                description=item.itunes_subtitle.root if item.itunes_subtitle else get_description(item.description),
                 date=item.pubDate,
                 tags=tags,
                 hosts=list(map(get_canonical_username, list(filter(lambda person: person.role in Settings.Host_Roles, item.podcast_persons)))),
@@ -229,6 +213,15 @@ def get_links(description: str) -> str:
 
     return re.sub(r'\ {2,}\n',r'\n', html2text(str(soup)).strip())
 
+def get_description(description: str) -> str:
+    soup = BeautifulSoup(f'<div>{description.strip()}</div>', features="html.parser")
+    element = soup.find('div').next_element
+
+    if isinstance(element, Tag):
+        soup = BeautifulSoup(f'<div>{element.renderContents().decode("utf-8")}</div>', features='html.parser')
+        return soup.find('div').next_element.text
+
+    return element.text
 
 def build_participants(participants: List[Person]):
     for participant in list(filter(lambda person: person.role in [*Settings.Host_Roles, *Settings.Guest_Roles], participants)):
