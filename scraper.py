@@ -9,7 +9,7 @@ import requests
 import yaml
 from bs4 import BeautifulSoup, NavigableString, SoupStrainer, Tag
 from typing import Union, Optional, Dict, List
-from pydantic import AnyHttpUrl
+from pydantic import AnyHttpUrl, ValidationError
 from frontmatter import Post, dumps
 from html2text import html2text
 from loguru import logger
@@ -48,15 +48,14 @@ def get_plain_title(title: str) -> str:
     return SHOW_TITLE_REGEX.match(title)[1]
 
 def get_podcast_chapters(chapters: Chapters) -> Optional[Chapters]:
+    """
+        Get chapters and validate json structure
+    """
     try:
         resp = requests.get(chapters.url)
         resp.raise_for_status()
 
-        try:
-            Chapters.model_validate_json(resp.text)
-        except Exception as e:
-            logger.warning('Invalid chapters JSON.\n'
-                           f'{e}')
+        Chapters.model_validate_json(resp.text)
 
         return Chapters(**resp.json())
     except requests.HTTPError:
@@ -64,6 +63,9 @@ def get_podcast_chapters(chapters: Chapters) -> Optional[Chapters]:
         pass
     except AttributeError:
         return None
+    except ValidationError as e:
+        logger.warning('Invalid chapters JSON.\n'
+                           f'{e}')
 
 def get_canonical_username(username: Person) -> str:
     """
@@ -76,6 +78,9 @@ def get_canonical_username(username: Person) -> str:
     return next(filter(str.__instancecheck__,(key for key, list in usernames_map.items() if username.name in list)), username.name)
 
 def parse_sponsors(page_url: AnyHttpUrl, episode_number: str, show: str, show_details: ShowDetails) -> List[str]:
+    """
+    Fetch page and use parse strategy based on host platform to parse list of sponsors.
+    """
     response = requests.get(page_url,)
     response.raise_for_status()
 
@@ -101,6 +106,9 @@ def parse_sponsors(page_url: AnyHttpUrl, episode_number: str, show: str, show_de
     return list(map(lambda sponsor: sponsors[sponsor].shortname, sponsors))
 
 def parse_tags(page_url: AnyHttpUrl, episode_number: str, show: str, show_details: ShowDetails) -> List[str]:
+    """
+    Fetch page and use parse strategy based on host platform to parse list of tags.
+    """
     response = requests.get(page_url,)
     page_soup = BeautifulSoup(response.text, features="html.parser")
 
@@ -121,6 +129,9 @@ def parse_tags(page_url: AnyHttpUrl, episode_number: str, show: str, show_detail
     return tags
 
 def parse_episode_number(title: str) -> str:
+    """
+    Get just the episode number, without the title text
+    """
     # return re.match(r'.*?(\d+):', title).groups()[0]
     return re.match(r'.*?((?:Pocket Office )?\d+):', title).groups()[0]
 
@@ -182,6 +193,9 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
     save_file(output_file, episode.get_hugo_md_file_content(), overwrite=Settings.LATEST_ONLY)
 
 def get_links(description: str) -> str:
+    """
+    Parse only the show links, removing sponsors and description
+    """
     soup = BeautifulSoup(description, features="html.parser", parse_only=SoupStrainer(['strong', 'ul', 'p']))
     # Remove Sponsor Links found in the description
     if type(sponsor_p := soup.find('p',string='Sponsored By:')) != NoneType:
@@ -214,6 +228,9 @@ def get_links(description: str) -> str:
     return re.sub(r'\ {2,}\n',r'\n', html2text(str(soup)).strip())
 
 def get_description(description: str) -> str:
+    """
+    Parse only the description, excluding show links and sponsors
+    """
     soup = BeautifulSoup(f'<div>{description.strip()}</div>', features="html.parser")
     element = soup.find('div').next_element
 
