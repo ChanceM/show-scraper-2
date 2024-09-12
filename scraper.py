@@ -5,6 +5,7 @@ from html import escape
 import sys
 import re
 from types import NoneType
+from unicodedata import normalize
 import requests
 import yaml
 from bs4 import BeautifulSoup, NavigableString, SoupStrainer, Tag
@@ -232,13 +233,22 @@ def get_description(description: str) -> str:
     Parse only the description, excluding show links and sponsors
     """
     soup = BeautifulSoup(f'<div>{description.strip()}</div>', features="html.parser")
+    
+    for br in soup.find_all('br'):
+        br.replace_with(' ')
+    
     element = soup.find('div').next_element
 
     if isinstance(element, Tag):
         soup = BeautifulSoup(f'<div>{element.renderContents().decode("utf-8")}</div>', features='html.parser')
-        return soup.find('div').next_element.text
-
-    return element.text
+        return soup.find('div').next_element.text.strip()
+    
+    description_parts: List[str] = [element.strip()]
+    while not isinstance(element := element.next_element, Tag):
+        if element.string == ' ':
+            continue
+        description_parts.append(element.strip())
+    return normalize('NFKC',' '.join(description_parts))
 
 def build_participants(participants: List[Person]):
     for participant in list(filter(lambda person: person.role in [*Settings.Host_Roles, *Settings.Guest_Roles], participants)):
