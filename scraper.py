@@ -134,12 +134,14 @@ def parse_episode_number(title: str) -> str:
     Get just the episode number, without the title text
     """
     # return re.match(r'.*?(\d+):', title).groups()[0]
-    return re.match(r'.*?((?:Pocket Office )?\d+):', title).groups()[0]
-
+    try:
+        return re.match(r'.*?((?:Pocket Office )?\d+):', title).groups()[0]
+    except AttributeError:
+        return ''
 
 def build_episode_file(item: Item, show: str, show_details: ShowDetails):
     episode_string = item.podcast_episode.episode if item.podcast_episode else parse_episode_number(item.title)
-    episode_number, episode_number_padded = (int(episode_string), f'{int(episode_string):04}') if episode_string.isnumeric() else tuple(("".join(re.findall(r'[A-Z\d]',episode_string)).lower(),))*2
+    episode_number, episode_number_padded = (int(episode_string), f'{int(episode_string):04}') if episode_string.isnumeric() else tuple((item.link.split("/")[-1],))*2
 
     output_file = Path(Settings.DATA_DIR) / 'content' / 'show' / show / f'{episode_number_padded.replace("/","")}.md'
 
@@ -233,16 +235,16 @@ def get_description(description: str) -> str:
     Parse only the description, excluding show links and sponsors
     """
     soup = BeautifulSoup(f'<div>{description.strip()}</div>', features="html.parser")
-    
+
     for br in soup.find_all('br'):
         br.replace_with(' ')
-    
+
     element = soup.find('div').next_element
 
     if isinstance(element, Tag):
         soup = BeautifulSoup(f'<div>{element.renderContents().decode("utf-8")}</div>', features='html.parser')
         return soup.find('div').next_element.text.strip()
-    
+
     description_parts: List[str] = [element.strip()]
     while not isinstance(element := element.next_element, Tag):
         if element.string == ' ':
