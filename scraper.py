@@ -15,6 +15,7 @@ from frontmatter import Post, dumps
 from html2text import html2text
 from loguru import logger
 from pathlib import Path
+from random import randrange
 
 from models import Rss
 from models.scraper import Settings
@@ -53,7 +54,7 @@ def get_podcast_chapters(chapters: Chapters) -> Optional[Chapters]:
         Get chapters and validate json structure
     """
     try:
-        resp = requests.get(chapters.url)
+        resp = requests.get(f'{chapters.url}?cache_buster={randrange(1,11)}')
         resp.raise_for_status()
 
         Chapters.model_validate_json(resp.text)
