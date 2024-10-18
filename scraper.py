@@ -264,7 +264,7 @@ def build_participants(participants: List[Person]):
                 username=canonical_username,
                 title=participant.name,
                 homepage=str(participant.href) if participant.href else None,
-                avatar=f'images/people/{canonical_username}.{str(participant.img).split(".")[-1]}' if participant.img else None
+                avatar=f'/images/people/{canonical_username}.{str(participant.img).split(".")[-1]}' if participant.img else None
             )
         })
 
