@@ -256,12 +256,12 @@ def get_description(description: str) -> str:
 def build_participants(participants: List[Person]):
     for participant in list(filter(lambda person: person.role in [*Settings.Host_Roles, *Settings.Guest_Roles], participants)):
         canonical_username = get_canonical_username(participant)
-        filename = f'{canonical_username}.md'
+        filename = f'{canonical_username.lower().replace(" ", "-")}.md'
 
         PARTICIPANTS.update({
             filename: Participant(
                 type='host' if participant.role in Settings.Host_Roles else 'guest',
-                username=canonical_username,
+                username=canonical_username.lower().replace(" ", "-"),
                 title=participant.name,
                 homepage=str(participant.href) if participant.href else None,
                 avatar=f'/images/people/{canonical_username}.{str(participant.img).split(".")[-1]}' if participant.img else None
