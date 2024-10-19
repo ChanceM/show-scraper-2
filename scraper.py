@@ -77,7 +77,7 @@ def get_canonical_username(username: Person) -> str:
     usernames_map = config.get("usernames_map")
 
     # Replace username if found in usernames_map or default to input username
-    return next(filter(str.__instancecheck__,(key for key, list in usernames_map.items() if username.name in list)), username.name)
+    return next(filter(str.__instancecheck__,(key for key, list in usernames_map.items() if username.name in list)), username.name.lower().replace(" ", "-"))
 
 def parse_sponsors(page_url: AnyHttpUrl, episode_number: str, show: str, show_details: ShowDetails) -> List[str]:
     """
@@ -256,12 +256,12 @@ def get_description(description: str) -> str:
 def build_participants(participants: List[Person]):
     for participant in list(filter(lambda person: person.role in [*Settings.Host_Roles, *Settings.Guest_Roles], participants)):
         canonical_username = get_canonical_username(participant)
-        filename = f'{canonical_username.lower().replace(" ", "-")}.md'
+        filename = f'{canonical_username}.md'
 
         PARTICIPANTS.update({
             filename: Participant(
                 type='host' if participant.role in Settings.Host_Roles else 'guest',
-                username=canonical_username.lower().replace(" ", "-"),
+                username=canonical_username,
                 title=participant.name,
                 homepage=str(participant.href) if participant.href else None,
                 avatar=f'/images/people/{canonical_username}.{str(participant.img).split(".")[-1]}' if participant.img else None
