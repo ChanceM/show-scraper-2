@@ -41,3 +41,4 @@ def test_unknown_usernames(mocker):
     assert get_canonical_username(Person(name='user')) == 'user'
     assert get_canonical_username(Person(name='user-01')) == 'user-01'
     assert get_canonical_username(Person(name='l33t~h@xor')) == 'l33t~h@xor'
+    assert get_canonical_username(Person(name='Producer Jeff')) == 'producer-jeff'
