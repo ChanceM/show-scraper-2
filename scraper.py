@@ -11,7 +11,7 @@ import yaml
 from bs4 import BeautifulSoup, NavigableString, SoupStrainer, Tag
 from typing import Union, Optional, Dict, List
 from pydantic import AnyHttpUrl, ValidationError
-from frontmatter import Post, dumps
+from frontmatter import Post, dumps, load
 from html2text import html2text
 from loguru import logger
 from pathlib import Path
@@ -96,7 +96,7 @@ def parse_sponsors(page_url: AnyHttpUrl, episode_number: str, show: str, show_de
             parse_strategy = FiresideSponsorParse()
 
     try:
-        sp: SponsorParser = SponsorParser(page_soup, show_details, parse_strategy)
+        sp: SponsorParser = SponsorParser(page_soup, show_details, parse_strategy, episode_number)
         sponsors = sp.run()
     except Exception as e:
         logger.warning(f"Failed to collect/parse sponsor data! # Show: {show} Ep: {episode_number}\n"
@@ -332,6 +332,15 @@ def save_post_obj_file(filename: str, post_obj: Post, dest_dir: Path, overwrite:
         overwrite = False
 
     file_path = dest_dir / filename
+    if file_path.exists():
+        with open(file_path) as f:
+            sponsor_file = load(f)
+
+            if ep := sponsor_file.metadata.get("episode", None):
+                if int(ep) > int(post_obj.metadata.get('episode', None)):
+                    logger.warning(f"Skipping saving `{file_path}` as the current file is newwer")
+                    return
+
     save_file(file_path, dumps(post_obj), overwrite=overwrite)
 
 def save_file(file_path: Path, content: Union[bytes,str], mode: str = "w", overwrite: bool = False) -> bool:

@@ -11,11 +11,11 @@ from models.sponsor import Sponsor
 
 class SponsorParseStrategy(ABC):
     @abstractmethod
-    def parse(self, page: BeautifulSoup, show_details: ShowDetails) -> Dict[str, Sponsor]:
+    def parse(self, page: BeautifulSoup, show_details: ShowDetails, episode_number: int) -> Dict[str, Sponsor]:
         pass
 
 class FiresideSponsorParse(SponsorParseStrategy):
-    def parse(self, page: BeautifulSoup, show_details: ShowDetails):
+    def parse(self, page: BeautifulSoup, show_details: ShowDetails, episode_number: int):
         sponsors: Dict[str, Sponsor] = {}
 
          # Get only the links of all the sponsors
@@ -47,7 +47,8 @@ class FiresideSponsorParse(SponsorParseStrategy):
                             shortname=shortname,
                             title=sponsor_a.find("header").text.strip(),
                             description=sponsor_a.find("p").text.strip(),
-                            link=sl
+                            link=sl,
+                            episode=episode_number
                         )
                     })
             except Exception as e:
@@ -56,7 +57,7 @@ class FiresideSponsorParse(SponsorParseStrategy):
         return sponsors
 
 class PodhomeSponsorParse(SponsorParseStrategy):
-    def parse(self, page: BeautifulSoup, show_details: ShowDetails):
+    def parse(self, page: BeautifulSoup, show_details: ShowDetails, episode_number: int):
         sponsors: Dict[str, Sponsor] = {}
 
         sponsor_tags = page.find_all('strong', string=re.compile('Sponsor:')) or page.find_all('div', class_='episode-sponsors')
@@ -95,10 +96,11 @@ class PodhomeSponsorParse(SponsorParseStrategy):
         return sponsors
 
 class SponsorParser:
-    def __init__(self, page, show_details: ShowDetails, parse_strategy: SponsorParseStrategy):
+    def __init__(self, page, show_details: ShowDetails, parse_strategy: SponsorParseStrategy, episode_number: int):
         self.page = page
         self.parse_strategy = parse_strategy
         self.show_details = show_details
+        self.episode_number = episode_number
 
     def run(self):
-        return self.parse_strategy.parse(self.page, self.show_details)
+        return self.parse_strategy.parse(self.page, self.show_details, self.episode_number)
