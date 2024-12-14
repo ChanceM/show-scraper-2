@@ -223,6 +223,8 @@ def get_links(description: str) -> str:
             strong.insert_before(BeautifulSoup('<br/>', features="html.parser"))
         if strong.text == 'Affiliate LINKS:':
             strong.string.replace_with(strong.text.title())
+        if br := strong.find('br'):
+            br.extract()
 
     # Escape title attr that has quotes
     for link in soup.find_all('a'):
