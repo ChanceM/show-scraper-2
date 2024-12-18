@@ -1,0 +1,57 @@
+shows:
+  this-week-in-bitcoin:
+    show_url: https://www.thisweekinbitcoin.show/
+    show_guid: 55b53584-4219-4fb0-b916-075ce23f714e
+    jb_url: https://www.jupiterbroadcasting.com/show/this-week-in-bitcoin
+    acronym: twib
+    name: This Week In Bitcoin
+
+# Map usernames of hosts/guests as they appear in Fireside to how we want to
+# save them in the new website. This also helps to avoid duplicates
+usernames_map:
+  chris:
+    - chrislas
+    - Chris Fisher
+  wes:
+    - wespayne
+  alex:
+    - alexktz
+  brent:
+    - brentgervais
+  michael:
+    - mike
+  danielle-fore:
+    - dani
+    - daniellefore
+  drew-devore:
+    - drewdevore
+    - drewdvore
+    - drewofdoom
+  jill-linuxgirl:
+    - jilllinuxgirl
+  jim-salter:
+    - jimsalter
+  philip-muller:
+    - philipmuller
+  popey:
+    - alanpope
+  wimpy:
+    - martinwimpress
+  stuart-langridge:
+    - stuartlangridge
+
+# List of any data filenames (sponsors or people) which shouldn't be
+# overridden when scraping latest shows. Any file that was manually edited should
+# be added here.
+data_dont_override:
+  - brent.md
+  - chris.md
+  - wes.md
+  - allanjude.md
+  - chzbacon.md
+  - ell.md
+  - danjohansen.md
+  - alex.md
+  - catherine-kretzschmar.md
+  - jeromelaban.md
+  - friends.md

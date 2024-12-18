@@ -1,0 +1,14 @@
+version: '3'
+services:
+  scraper:
+    image: jb-scraper
+    container_name: jb-scraper-podhome
+    environment:
+      # - LATEST_ONLY=true
+      # - LOG_LVL=10
+      - DATA_DIR=/data
+    build:
+      context: .
+    volumes:
+      - ./data:/data
+

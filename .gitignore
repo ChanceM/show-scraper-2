@@ -1,0 +1,6 @@
+# created by virtualenv automatically
+data/
+venv/
+.vscode/
+.git/
+__pycache__/

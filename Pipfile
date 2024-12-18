@@ -1,0 +1,23 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+pydantic-xml = "==2.9.0"
+html2text = "*"
+loguru = "*"
+requests = "*"
+pyyaml = "*"
+bs4 = "*"
+python-frontmatter = "*"
+pydantic = {version = "*", extras = ["email"]}
+
+[dev-packages]
+pytest = "*"
+
+[requires]
+python_version = "3.11"
+
+[scripts]
+scraper = "python ./scraper.py"
