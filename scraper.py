@@ -16,6 +16,7 @@ from html2text import html2text
 from loguru import logger
 from pathlib import Path
 from random import randrange
+from threading import Lock
 
 from models import Rss
 from models.scraper import Settings
@@ -35,6 +36,7 @@ SPONSORS: Dict[str, Sponsor] = {}  # JSON filename as key (e.g. "linode.com-lup.
 
 #
 PARTICIPANTS: Dict[str, Participant] = {}
+LOCK = Lock()
 
 # Regex to strip Episode Numbers and information after the |
 # https://regex101.com/r/gkUzld/
@@ -333,17 +335,18 @@ def save_post_obj_file(filename: str, post_obj: Post, dest_dir: Path, overwrite:
         logger.warning(f"Filename `{filename}` found in `data_dont_override`! Will not save to it.")
         overwrite = False
 
-    file_path = dest_dir / filename
-    if file_path.exists():
-        with open(file_path) as f:
-            sponsor_file = load(f)
+    with LOCK:
+        file_path = dest_dir / filename
+        if file_path.exists():
+            with open(file_path) as f:
+                sponsor_file = load(f)
 
-            if ep := sponsor_file.metadata.get("episode", None):
-                if int(ep) > int(post_obj.metadata.get('episode', None)):
-                    logger.warning(f"Skipping saving `{file_path}` as the current file is newwer")
-                    return
+                if ep := sponsor_file.metadata.get("episode", None):
+                    if int(ep) > int(post_obj.metadata.get('episode', None)):
+                        logger.warning(f"Skipping saving `{file_path}` as the current file is newwer")
+                        return
 
-    save_file(file_path, dumps(post_obj), overwrite=overwrite)
+        save_file(file_path, dumps(post_obj), overwrite=overwrite)
 
 def save_file(file_path: Path, content: Union[bytes,str], mode: str = "w", overwrite: bool = False) -> bool:
     if not overwrite and file_path.exists():
