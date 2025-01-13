@@ -85,7 +85,7 @@ def parse_sponsors(page_url: AnyHttpUrl, episode_number: str, show: str, show_de
     """
     Fetch page and use parse strategy based on host platform to parse list of sponsors.
     """
-    response = requests.get(page_url,)
+    response = requests.get(page_url,headers={"Accept": "text/html,application/xhtml+xml,application/xml"})
     response.raise_for_status()
 
     page_soup = BeautifulSoup(response.text, features="html.parser")
