@@ -13,6 +13,13 @@ shows:
     acronym: lup
     name: LINUX Unplugged
     host_platform: fireside
+  # coder-radio:
+  #   show_rss: https://feeds.jupiterbroadcasting.com/coder
+  #   show_url: https://coder.show
+  #   jb_url:  https://www.jupiterbroadcasting.com/show/coderradio
+  #   acronym: cr
+  #   name: Coder Radio
+  #   host_platform: fireside
   # office-hours:
   #   show_rss: https://feeds.us-east-1.linodeobjects.com/office/office.xml
   #   show_url: https://www.officehours.hair
@@ -56,6 +63,12 @@ usernames_map:
     - martinwimpress
   stuart-langridge:
     - stuartlangridge
+  tomasz:
+    - Tomasz Frątczak
+  michaeltunnell:
+    - michaetunnell
+    - michael-tunnell
+    - Michael Tunnell
 
 # List of any data filenames (sponsors or people) which shouldn't be
 # overridden when scraping latest shows. Any file that was manually edited should
