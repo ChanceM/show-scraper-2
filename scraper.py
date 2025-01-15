@@ -373,7 +373,7 @@ def main():
         if show_config.host_platform == 'fireside':
             soup = BeautifulSoup(response.content, features='xml')
             rss_tag = soup.find('rss')
-            if rss_tag.attrs['xmlns:podcast'] != 'https://podcastindex.org/namespace/1.0':
+            if (ns_url := rss_tag.attrs.get('xmlns:podcast')) and ns_url != 'https://podcastindex.org/namespace/1.0':
                 rss_tag.attrs['xmlns:podcast'] = 'https://podcastindex.org/namespace/1.0'
                 del response
                 response = SimpleNamespace(content=str(rss_tag))
