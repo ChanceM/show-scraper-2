@@ -163,7 +163,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
         return
     tags = sorted(item.itunes_keywords.keywords) if item.itunes_keywords else parse_tags(item.link, episode_number,show,show_details)
 
-    episode_links = get_links(item.description)
+    episode_links = get_links(item.content_encoded if item.content_encoded else item.description)
 
     episode = Episode(
                 show_slug=show,
