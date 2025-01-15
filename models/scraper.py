@@ -40,5 +40,6 @@ class ScraperRootXmlModel(RootXmlModel):
 NSMAP = {
     'podcast': 'https://podcastindex.org/namespace/1.0',
     'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd',
-    'atom': 'http://www.w3.org/2005/Atom'
+    'atom': 'http://www.w3.org/2005/Atom',
+    'content': 'http://purl.org/rss/1.0/modules/content/'
 }

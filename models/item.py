@@ -4,6 +4,7 @@ from typing import Tuple, Optional
 from models .scraper import ScraperBaseXmlModel
 from models.podcast import AlternateEnclosure, Chapters, Chat, Episode, Funding, License, Location, Season, SocialInteract, Soundbite, Transcript, Txt, Value, Images, Person
 from models.itunes import Keywords, Subtitle, Title, ItunesImage, Author, Explicit,  Duration, ItunesEpisode, EpisodeType
+from models.content import Encoded
 from pydantic import constr, AnyHttpUrl, field_validator
 from datetime import datetime
 
@@ -23,6 +24,7 @@ class Item(ScraperBaseXmlModel, tag='item'):
     guid: Optional[Guid] = None
     link: Optional[str] = element(tag='link', default=None, ns='')
     pubDate: Optional[str] = element(default=None, ns='')
+    content_encoded: Optional[str] = Encoded
     itunes_author: Optional[str] = Author
     itunes_duration: Optional[Duration] = None
     itunes_episode: Optional[int] = ItunesEpisode
