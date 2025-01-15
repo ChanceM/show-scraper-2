@@ -4,7 +4,7 @@ import concurrent.futures
 from html import escape
 import sys
 import re
-from types import NoneType
+from types import NoneType, SimpleNamespace
 from unicodedata import normalize
 import requests
 import yaml
@@ -368,6 +368,15 @@ def main():
 
     for show, show_config in validated_config.shows.items():
         response = requests.get(show_config.show_rss)
+
+        # Handle Fireside using the wrong Podcast Namesapce URL
+        if show_config.host_platform == 'fireside':
+            soup = BeautifulSoup(response.content, features='xml')
+            rss_tag = soup.find('rss')
+            if rss_tag.attrs['xmlns:podcast'] != 'https://podcastindex.org/namespace/1.0':
+                rss_tag.attrs['xmlns:podcast'] = 'https://podcastindex.org/namespace/1.0'
+                del response
+                response = SimpleNamespace(content=str(rss_tag))
 
         rss = Rss.from_xml(response.content)
 
