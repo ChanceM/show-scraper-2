@@ -91,6 +91,13 @@ from scraper import get_links
 **Music**
 
   * [I Need a Little by The Retrograde](https://podcastindex.org/podcast/6855581)'''
+    ),
+    (
+      '''<p>Our Nostr workshop. We’ll help you get your Nostr identity and answer any questions.</p> <p>Plus, where we see this protocol going and features coming.</p> <h3>The protocol is very promising</h3> <p>We&#39;re finding new use cases for it every week. It&#39;s based on simple and flexible event objects (passed around as plain JSON).<br> A public key identifies every user. Every post is signed. Every client validates these signatures.</p> <p>And, of course - it&#39;s open source.</p> <h3>How Nostr could be useful for Podcasting</h3> <p>One of the more compelling usecases emerging is decentralized realtime chat. </p> <p>Because everything is passed around as plain JSON, the ability to build cross-app and platform apps is built in.</p> <p>Create one identity and use it across all the apps and sites. Taking your identity with you is as simple as bringing your key.</p> <h3>Help us test, learn a little Nostr.</h3> <p>Fountain.fm is building a new live experience, with an embeddable webchat built around Nostr. The chat can be pulled into any app or website. And it will be easy to build tooling around.</p> <ul> <li>Create an identity: <a href="https://primal.net/" rel="nofollow">https://primal.net/</a></li> <li>Setup Alby: <a href="https://getalby.com/" rel="nofollow">https://getalby.com/</a></li> <li>Create an account at <a href="https://fountain.fm" rel="nofollow">https://fountain.fm</a></li> <li>Connect your Fountain.FM and Nostr ID</li> </ul><p>Links:</p><ul><li><a href="https://linuxunplugged.com/nostr" title="Nostr Starter Pack" rel="nofollow">Nostr Starter Pack</a></li><li><a href="https://primal.net/home" title="Primal" rel="nofollow">Primal</a></li><li><a href="https://getalby.com/" title="Alby" rel="nofollow">Alby</a></li><li><a href="https://fountain.fm/" title="Fountain" rel="nofollow">Fountain</a></li></ul>''',
+      '''* [Nostr Starter Pack](https://linuxunplugged.com/nostr "Nostr Starter Pack")
+* [Primal](https://primal.net/home "Primal")
+* [Alby](https://getalby.com/ "Alby")
+* [Fountain](https://fountain.fm/ "Fountain")'''
     )
   ]
 )
