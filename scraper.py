@@ -175,8 +175,8 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 description=item.itunes_subtitle.root if item.itunes_subtitle else get_description(item.description),
                 date=item.pubDate,
                 tags=tags,
-                hosts=list(map(get_canonical_username, list(filter(lambda person: person.role in Settings.Host_Roles, item.podcast_persons)))),
-                guests=list(map(get_canonical_username, list(filter(lambda person: person.role in Settings.Guest_Roles, item.podcast_persons)))),
+                hosts=sorted(list(map(get_canonical_username, list(filter(lambda person: person.role in Settings.Host_Roles, item.podcast_persons))))),
+                guests=sorted(list(map(get_canonical_username, list(filter(lambda person: person.role in Settings.Guest_Roles, item.podcast_persons))))),
                 sponsors=sponsors,
                 podcast_duration=item.itunes_duration.root,
                 podcast_file=item.enclosure.url,
@@ -206,7 +206,7 @@ def get_links(description: str) -> str:
     # Remove Sponsor Links found in the description
     if type(sponsor_p := soup.find('p',string='Sponsored By:')) is not NoneType:
         sponsor_p.find_next('ul').decompose()
-    if type(node := soup.find('strong',string=re.compile(r'.*Links|Show.*',re.IGNORECASE))) is not NoneType:
+    if type(node := soup.find(['strong','p'],string=re.compile(r'.*Links|Show.*',re.IGNORECASE))) is not NoneType:
         while(type(node.previous_element) is not NoneType):
             node_next = node.previous_element
             if node.text == 'Affiliate LINKS:':
