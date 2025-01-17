@@ -51,7 +51,7 @@ class Duration(ScraperBaseXmlModel, tag='duration', ns='itunes', nsmap=NSMAP):
     @field_validator('root', mode='before')
     @classmethod
     def validate_duration(cls, value: time|PositiveInt|str) -> time:
-        if type(value) == int or value.isnumeric():
+        if type(value) is int or value.isnumeric():
             seconds = int(value)
             minutes, seconds = divmod(seconds, 60)
             hours, minutes = divmod(minutes, 60)
