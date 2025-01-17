@@ -340,7 +340,7 @@ class SocialInteract(ScraperBaseXmlModel, tag='socialInteract', ns='podcast', ns
     @classmethod
     def validate_uri(cls, value, values):
         print(values.data['protocol'])
-        if values.data['protocol'] != 'disabled' and value == None:
+        if values.data['protocol'] != 'disabled' and value is None:
             raise ValueError('uri is required')
         return value
 

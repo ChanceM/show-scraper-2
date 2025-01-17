@@ -204,15 +204,15 @@ def get_links(description: str) -> str:
     """
     soup = BeautifulSoup(description, features="html.parser", parse_only=SoupStrainer(['strong', 'ul', 'p']))
     # Remove Sponsor Links found in the description
-    if type(sponsor_p := soup.find('p',string='Sponsored By:')) != NoneType:
+    if type(sponsor_p := soup.find('p',string='Sponsored By:')) is not NoneType:
         sponsor_p.find_next('ul').decompose()
-    if type(node := soup.find('strong',string=re.compile(r'.*Links|Show.*',re.IGNORECASE))) != NoneType:
-        while(type(node.previous_element) != NoneType):
+    if type(node := soup.find('strong',string=re.compile(r'.*Links|Show.*',re.IGNORECASE))) is not NoneType:
+        while(type(node.previous_element) is not NoneType):
             node_next = node.previous_element
             if node.text == 'Affiliate LINKS:':
                 node = node_next
                 continue
-            if type(node) != NavigableString:
+            if type(node) is not NavigableString:
                 node.decompose()
             else:
                 node.extract()
@@ -221,7 +221,7 @@ def get_links(description: str) -> str:
     soup = BeautifulSoup(str(soup), features="html.parser", parse_only=SoupStrainer(['strong', 'li']))
 
     for strong in soup.find_all('strong'):
-        if type(strong.previous) == NavigableString:
+        if type(strong.previous) is NavigableString:
             strong.insert_before(BeautifulSoup('<br/>', features="html.parser"))
         if strong.text == 'Affiliate LINKS:':
             strong.string.replace_with(strong.text.title())

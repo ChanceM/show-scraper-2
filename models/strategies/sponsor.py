@@ -78,7 +78,7 @@ class PodhomeSponsorParse(SponsorParseStrategy):
 
                 filename = f'{shortname}.md'
 
-                description = " ".join([sponsor_link.find_next('strong').text if type(sponsor_link.find_next('strong')) != NoneType else '', sponsor_link.find_next('strong').next_sibling.text if type(sponsor_link.find_next('strong')) != NoneType else ''])
+                description = " ".join([sponsor_link.find_next('strong').text if type(sponsor_link.find_next('strong')) is not NoneType else '', sponsor_link.find_next('strong').next_sibling.text if type(sponsor_link.find_next('strong')) is not NoneType else ''])
 
                 if sponsor_link and not sponsors.get(filename):
                     sponsors.update({
