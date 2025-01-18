@@ -113,6 +113,7 @@ def parse_tags(page_url: AnyHttpUrl, episode_number: str, show: str, show_detail
     """
     Fetch page and use parse strategy based on host platform to parse list of tags.
     """
+    tags: List[str] = []
     response = requests.get(page_url,)
     page_soup = BeautifulSoup(response.text, features="html.parser")
 
@@ -128,7 +129,6 @@ def parse_tags(page_url: AnyHttpUrl, episode_number: str, show: str, show_detail
     except Exception as e:
         logger.warning(f"Failed to collect/parse tags! # Show: {show} Ep: {episode_number}\n"
             f"{e}")
-        tags = []
 
     return tags
 
