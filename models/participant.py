@@ -11,7 +11,7 @@ class Participant(BaseModel):
     bio: Optional[str] = None
     avatar: Optional[str] = None
     avatar_small: Optional[str] = None
-    homepage: Optional[str] = None
+    homepage: Optional[HttpUrl] = None
     twitter: Optional[HttpUrl] = None
     linkedin: Optional[HttpUrl] = None
     instagram: Optional[HttpUrl] = None

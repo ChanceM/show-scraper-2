@@ -13,3 +13,4 @@ class ShowDetails(BaseModel):
 class ConfigData(BaseModel):
     shows: Dict[str,ShowDetails]
     usernames_map: Dict[str,Set[str]]
+    data_dont_override: Set[str]
