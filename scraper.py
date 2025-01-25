@@ -33,17 +33,14 @@ from models.strategies.tag import FiresideTagParse, PodhomeTagParse, TagParser
 # The sponsors' data is collected into this global when episode files are scraped.
 # This data is saved to files files after the episode files have been created.
 SPONSORS: Dict[str, Sponsor] = {}  # JSON filename as key (e.g. "linode.com-lup.json")
-
-#
 PARTICIPANTS: Dict[str, Participant] = {}
+
 LOCK = Lock()
+CONFIGURATION: ConfigData = None
 
 # Regex to strip Episode Numbers and information after the |
 # https://regex101.com/r/gkUzld/
 SHOW_TITLE_REGEX = re.compile(r"^(?:(?:Episode)?\s?[0-9]+:+\s+)?(.+?)(?:(\s+\|+.*)|\s+)?$")
-
-global config
-config = None
 
 def get_plain_title(title: str) -> str:
     """
@@ -74,12 +71,10 @@ def get_podcast_chapters(chapters: Chapters) -> Optional[Chapters]:
 def get_canonical_username(username: Person) -> str:
     """
     Get the last path part of the url which is the username for the hosts and guests.
-    Replace it using the `username_map` from config.
+    Replace it using the `username_map` from config.yml
     """
-    usernames_map = config.get("usernames_map")
 
-    # Replace username if found in usernames_map or default to input username
-    return next(filter(str.__instancecheck__,(key for key, list in usernames_map.items() if username.name in list)), username.name.lower().replace(" ", "-"))
+    return next(filter(str.__instancecheck__,(key for key, list in CONFIGURATION.usernames_map.items() if username.name in list)), username.name.lower().replace(" ", "-"))
 
 def parse_sponsors(page_url: AnyHttpUrl, episode_number: str, show: str, show_details: ShowDetails) -> List[str]:
     """
@@ -307,8 +302,8 @@ def save_sponsors(executor: concurrent.futures.ThreadPoolExecutor) -> None:
     futures = []
     for filename, sponsor in SPONSORS.items():
         futures.append(executor.submit(
-            save_post_obj_file,
-            filename, Post('',**sponsor.model_dump()), sponsors_dir, overwrite=True))
+            process_and_serialize_object,
+            filename, sponsor, sponsors_dir, overwrite=True))
 
     # Drain all threads
     for future in concurrent.futures.as_completed(futures):
@@ -321,32 +316,56 @@ def save_participants(executor: concurrent.futures.ThreadPoolExecutor) -> None:
     futures = []
     for filename, participant in PARTICIPANTS.items():
         futures.append(executor.submit(
-            save_post_obj_file,
-            filename, Post('',**participant.model_dump()), person_dir, overwrite=True))
+            process_and_serialize_object,
+            filename, participant, person_dir, overwrite=True))
 
     # Drain all threads
     for future in concurrent.futures.as_completed(futures):
         future.result()
     logger.info(">>> Finished saving participants")
 
-def save_post_obj_file(filename: str, post_obj: Post, dest_dir: Path, overwrite: bool = False) -> None:
-    data_dont_override = set(config.get("data_dont_override"))
-    if Settings.LATEST_ONLY and filename in data_dont_override:
+def process_and_serialize_object(filename: str, obj: Participant | Sponsor, dest_dir: Path, overwrite: bool = False) -> NoneType:
+    """
+    Prepares and saves the given Participant or Sponsor object to the specified file path.
+
+    If the file already exists, for a Sponsor it checks if the current object is newer
+    than the existing one (based on episode number), for a Participant it will update
+    only the Avatar and Homepage attributes.
+
+    Parameters:
+        filename: The name of the file to save the object to
+        obj: The Participant or Sponsor object to be saved
+        dest_dir: The directory where the file should be saved
+        overwrite: Whether to overwrite an existing file with the same name (default is False)
+
+    Returns:
+        None
+    """
+
+    if Settings.LATEST_ONLY and filename in CONFIGURATION.data_dont_override:
         logger.warning(f"Filename `{filename}` found in `data_dont_override`! Will not save to it.")
         overwrite = False
 
+    file_path: Path = dest_dir / filename
+
+    if not file_path.exists():
+        save_file(file_path, dumps(Post('',**obj.model_dump(mode='json'))), overwrite=overwrite)
+        return
+
     with LOCK:
-        file_path = dest_dir / filename
-        if file_path.exists():
-            with open(file_path) as f:
-                sponsor_file = load(f)
+        with open(file_path) as file:
+            post_file: Post = load(file)
+            if isinstance(obj, Sponsor):
+                if (ep := post_file.metadata.get("episode", None)) and int(ep) > getattr(obj,'episode', -1):
+                    logger.warning(f"Skipping saving `{file_path}` as the current file is newwer")
+                    return
 
-                if ep := sponsor_file.metadata.get("episode", None):
-                    if int(ep) > int(post_obj.metadata.get('episode', None)):
-                        logger.warning(f"Skipping saving `{file_path}` as the current file is newwer")
-                        return
+            if isinstance(obj, Participant):
+                post_file.metadata.update({'homepage': obj.homepage, 'avatar': obj.avatar})
+                obj = Participant(**post_file.metadata)
 
-        save_file(file_path, dumps(post_obj), overwrite=overwrite)
+    # use json mode so URL types are converted to string for output to YAML
+    save_file(file_path, dumps(Post('',**obj.model_dump(mode='json'))), overwrite=overwrite)
 
 def save_file(file_path: Path, content: Union[bytes,str], mode: str = "w", overwrite: bool = False) -> bool:
     if not overwrite and file_path.exists():
@@ -354,19 +373,17 @@ def save_file(file_path: Path, content: Union[bytes,str], mode: str = "w", overw
         return False
 
     file_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(file_path, mode) as f:
-        f.write(content)
+    with open(file_path, mode) as file:
+        file.write(content)
     logger.info(f"Saved file: {file_path}")
     return True
 
 def main():
-    global config
-    with open("config.yml") as f:
-        config = yaml.load(f, Loader=yaml.SafeLoader)
-        validated_config = ConfigData(shows=config['shows'], usernames_map=config['usernames_map'])
+    global CONFIGURATION
+    with open("config.yml") as file:
+        CONFIGURATION = ConfigData(**yaml.load(file, Loader=yaml.SafeLoader))
 
-
-    for show, show_config in validated_config.shows.items():
+    for show, show_config in CONFIGURATION.shows.items():
         response = requests.get(show_config.show_rss)
 
         # Handle Fireside using the wrong Podcast Namesapce URL
