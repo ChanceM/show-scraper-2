@@ -13,12 +13,33 @@ shows:
     acronym: lup
     name: LINUX Unplugged
     host_platform: fireside
+  # self-hosted:
+  #   show_rss: https://selfhosted.show/rss
+  #   show_url: https://selfhosted.show
+  #   jb_url: https://www.jupiterbroadcasting.com/show/self-hosted
+  #   acronym: ssh
+  #   name: Self-Hosted
+  #   host_platform: fireside
   # coder-radio:
   #   show_rss: https://feeds.jupiterbroadcasting.com/coder
   #   show_url: https://coder.show
   #   jb_url:  https://www.jupiterbroadcasting.com/show/coderradio
   #   acronym: cr
   #   name: Coder Radio
+  #   host_platform: fireside
+  # linux-action-news:
+  #   show_rss: https://linuxactionnews.com/rss
+  #   show_url: https://linuxactionnews.com
+  #   jb_url: https://www.jupiterbroadcasting.com/show/linux-action-news
+  #   acronym: LAN
+  #   name: Linux Action News
+  #   host_platform: fireside
+  # jupiter-extras:
+  #   show_rss: https://extras.show/rss
+  #   show_url: https://extras.show
+  #   jb_url: https://www.jupiterbroadcasting.com/show/extras
+  #   acronym: JE
+  #   name: Jupiter EXTRAS
   #   host_platform: fireside
   # office-hours:
   #   show_rss: https://feeds.us-east-1.linodeobjects.com/office/office.xml
@@ -39,11 +60,13 @@ usernames_map:
     - Wes Payne
   alex:
     - alexktz
+    - Alex Kretzschmar
   brent:
     - brentgervais
     - Brent Gervais
   michael:
     - mike
+    - Michael Dominick
   danielle-fore:
     - dani
     - daniellefore
