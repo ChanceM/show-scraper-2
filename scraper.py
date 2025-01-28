@@ -100,7 +100,7 @@ def parse_sponsors(page_url: AnyHttpUrl, episode_number: str, show: str, show_de
             f"{e}")
         sponsors = {}
 
-    SPONSORS.update([(key, sponsor) for key, sponsor in sponsors.items() if sponsor.episode > SPONSORS.get(key, SimpleNamespace(episode=-1)).episode])
+    SPONSORS.update([(key, sponsor) for key, sponsor in sponsors.items() if  int(sponsor.episode or -1) > SPONSORS.get(key, SimpleNamespace(episode=-1)).episode])
 
     return list(map(lambda sponsor: sponsors[sponsor].shortname, sponsors))
 
