@@ -100,7 +100,7 @@ def parse_sponsors(page_url: AnyHttpUrl, episode_number: str, show: str, show_de
             f"{e}")
         sponsors = {}
 
-    SPONSORS.update(sponsors)
+    SPONSORS.update([(key, sponsor) for key, sponsor in sponsors.items() if sponsor.episode > SPONSORS.get(key, SimpleNamespace(episode=-1)).episode])
 
     return list(map(lambda sponsor: sponsors[sponsor].shortname, sponsors))
 
@@ -356,8 +356,8 @@ def process_and_serialize_object(filename: str, obj: Participant | Sponsor, dest
         with open(file_path) as file:
             post_file: Post = load(file)
             if isinstance(obj, Sponsor):
-                if (ep := post_file.metadata.get("episode", None)) and int(ep) > getattr(obj,'episode', -1):
-                    logger.warning(f"Skipping saving `{file_path}` as the current file is newwer")
+                if (file_ep := post_file.metadata.get("episode", None)) and int(file_ep) >= (post_ep := getattr(obj,'episode', -1)):
+                    logger.warning(f"Skipping saving `{file_path}` as the current file is the latest")
                     return
 
             if isinstance(obj, Participant):
