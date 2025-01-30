@@ -267,9 +267,6 @@ def build_participants(participants: List[Person]):
             )
         })
 
-        if participant.img:
-            save_avatar_img(participant.img,canonical_username, f'images/people/{canonical_username}.{str(participant.img).split(".")[-1]}')
-
 def save_avatar_img(img_url: str, username: str, relative_filepath: str) -> None:
     """Save the avatar image only if it doesn't exist.
 
@@ -309,6 +306,7 @@ def save_sponsors(executor: concurrent.futures.ThreadPoolExecutor) -> None:
     for future in concurrent.futures.as_completed(futures):
         future.result()
     logger.info(">>> Finished saving sponsors")
+    SPONSORS.clear()
 
 def save_participants(executor: concurrent.futures.ThreadPoolExecutor) -> None:
     logger.info(">>> Saving the participants found in episodes...")
@@ -318,11 +316,14 @@ def save_participants(executor: concurrent.futures.ThreadPoolExecutor) -> None:
         futures.append(executor.submit(
             process_and_serialize_object,
             filename, participant, person_dir, overwrite=True))
+        if participant.avatar:
+            save_avatar_img(participant.avatar,participant.username, f'images/people/{participant.username}.{str(participant.avatar).split(".")[-1]}')
 
     # Drain all threads
     for future in concurrent.futures.as_completed(futures):
         future.result()
     logger.info(">>> Finished saving participants")
+    PARTICIPANTS.clear()
 
 def process_and_serialize_object(filename: str, obj: Participant | Sponsor, dest_dir: Path, overwrite: bool = False) -> NoneType:
     """
