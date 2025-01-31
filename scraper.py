@@ -143,9 +143,8 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
 
     output_file = Path(Settings.DATA_DIR) / 'content' / 'show' / show / f'{episode_number_padded.replace("/","")}.md'
 
-    if not Settings.LATEST_ONLY and output_file.exists():
-        # Overwrite when IS_LATEST_ONLY mode is true
-        logger.warning(f"Skipping saving `{output_file}` as it already exists")
+    if not Settings.Overwrite_Existing and output_file.exists():
+        logger.warning(f"Skipping saving `{output_file}` as it already exists and not overwriting")
         return
 
     try:
@@ -191,7 +190,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
 
     build_participants(item.podcast_persons)
 
-    save_file(output_file, episode.get_hugo_md_file_content(), overwrite=Settings.LATEST_ONLY)
+    save_file(output_file, episode.get_hugo_md_file_content(), overwrite=Settings.Overwrite_Existing)
 
 def get_links(description: str) -> str:
     """
@@ -300,7 +299,7 @@ def save_sponsors(executor: concurrent.futures.ThreadPoolExecutor) -> None:
     for filename, sponsor in SPONSORS.items():
         futures.append(executor.submit(
             process_and_serialize_object,
-            filename, sponsor, sponsors_dir, overwrite=True))
+            filename, sponsor, sponsors_dir, overwrite=Settings.Overwrite_Existing))
 
     # Drain all threads
     for future in concurrent.futures.as_completed(futures):
@@ -315,7 +314,7 @@ def save_participants(executor: concurrent.futures.ThreadPoolExecutor) -> None:
     for filename, participant in PARTICIPANTS.items():
         futures.append(executor.submit(
             process_and_serialize_object,
-            filename, participant, person_dir, overwrite=True))
+            filename, participant, person_dir, overwrite=Settings.Overwrite_Existing))
         if participant.avatar:
             save_avatar_img(participant.avatar,participant.username, f'images/people/{participant.username}.{str(participant.avatar).split(".")[-1]}')
 
@@ -342,12 +341,13 @@ def process_and_serialize_object(filename: str, obj: Participant | Sponsor, dest
     Returns:
         None
     """
+    file_path: Path = dest_dir / filename
 
-    if Settings.LATEST_ONLY and filename in CONFIGURATION.data_dont_override:
+    if file_path.exists() and filename in CONFIGURATION.data_dont_override:
         logger.warning(f"Filename `{filename}` found in `data_dont_override`! Will not save to it.")
         overwrite = False
+        return
 
-    file_path: Path = dest_dir / filename
 
     if not file_path.exists():
         save_file(file_path, dumps(Post('',**obj.model_dump(mode='json'))), overwrite=overwrite)

@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     Host_Roles: Set = {'Host', 'Co-Host'}
     Guest_Roles: Set = {'Guest'}
     Extras: str = 'Allow'
+    Overwrite_Existing: bool = True
 
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
