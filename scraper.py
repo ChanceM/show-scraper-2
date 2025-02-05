@@ -52,21 +52,35 @@ def get_podcast_chapters(chapters: Chapters) -> Optional[Chapters]:
     """
         Get chapters and validate json structure
     """
-    try:
-        resp = requests.get(f'{chapters.url}?cache_buster={randrange(1,11)}')
-        resp.raise_for_status()
+    response: requests.Response = None
 
-        Chapters.model_validate_json(resp.text)
+    for _ in range(Settings.Retry_Count):
+        try:
+            response = requests.get(chapters.url, headers={'Accept':'application/json'})
+            response.raise_for_status()
 
-        return Chapters(**resp.json())
-    except requests.HTTPError:
-        # No chapters
-        pass
-    except AttributeError:
-        return None
-    except ValidationError as e:
-        logger.warning('Invalid chapters JSON.\n'
-                           f'{e}')
+            if not response.text:
+                continue
+
+            Chapters.model_validate_json(response.text)
+            break
+
+        except requests.exceptions.ChunkedEncodingError:
+            logger.warning(f'Chapters request response error will retry. {chapters.url}')
+            continue
+        except requests.HTTPError:
+            # No chapters
+            return
+        except AttributeError:
+            return
+        except ValidationError as e:
+            logger.warning('Invalid chapters JSON.\n'
+                           f'{e}\n' f'{chapters.url=}')
+            return
+    else:
+        logger.error(f'Unable to retrive Chapters from {chapters.url}')
+
+    return Chapters(**response.json())
 
 def get_canonical_username(username: Person) -> str:
     """

@@ -1,5 +1,5 @@
 from pydantic_xml import BaseXmlModel, RootXmlModel
-from pydantic import ConfigDict
+from pydantic import ConfigDict, PositiveInt
 from typing import Set
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from logging import INFO
@@ -20,6 +20,8 @@ class Settings(BaseSettings):
     Guest_Roles: Set = {'Guest'}
     Extras: str = 'Allow'
     Overwrite_Existing: bool = True
+    # Retry Attempts for Chapters requests
+    Retry_Count: PositiveInt = 3
 
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
 
