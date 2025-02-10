@@ -270,6 +270,9 @@ def build_participants(participants: List[Person]):
         canonical_username = get_canonical_username(participant)
         filename = f'{canonical_username}.md'
 
+        if participant.img:
+            save_avatar_img(participant.img, canonical_username, f'images/people/{canonical_username}.{str(participant.img).split(".")[-1]}')
+
         PARTICIPANTS.update({
             filename: Participant(
                 type='host' if participant.role in Settings.Host_Roles else 'guest',
@@ -329,8 +332,6 @@ def save_participants(executor: concurrent.futures.ThreadPoolExecutor) -> None:
         futures.append(executor.submit(
             process_and_serialize_object,
             filename, participant, person_dir, overwrite=Settings.Overwrite_Existing))
-        if participant.avatar:
-            save_avatar_img(participant.avatar,participant.username, f'images/people/{participant.username}.{str(participant.avatar).split(".")[-1]}')
 
     # Drain all threads
     for future in concurrent.futures.as_completed(futures):
