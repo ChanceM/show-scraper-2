@@ -13,6 +13,13 @@ shows:
     acronym: lup
     name: LINUX Unplugged
     host_platform: fireside
+  the-launch:
+    show_rss: https://serve.podhome.fm/rss/04b078f9-b3e8-4363-a576-98e668231306
+    show_url: https://www.weeklylaunch.rocks
+    jb_url:  https://www.jupiterbroadcasting.com/show/the-launch
+    acronym: tl
+    name: The Launch 🚀
+    host_platform: podhome
   # self-hosted:
   #   show_rss: https://selfhosted.show/rss
   #   show_url: https://selfhosted.show
