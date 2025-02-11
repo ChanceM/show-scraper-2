@@ -204,7 +204,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
 
     build_participants(item.podcast_persons)
 
-    save_file(output_file, episode.get_hugo_md_file_content(), overwrite=Settings.Overwrite_Existing)
+    save_file(output_file, episode.get_hugo_md_file_content(), overwrite=Settings.Overwrite_Existing if output_file.name not in show_details.dont_override else False)
 
 def get_links(description: str) -> str:
     """

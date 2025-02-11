@@ -1,5 +1,5 @@
 from pydantic import BaseModel, HttpUrl
-from typing import Dict, Set
+from typing import Dict, List, Optional, Set
 
 
 class ShowDetails(BaseModel):
@@ -9,6 +9,7 @@ class ShowDetails(BaseModel):
     acronym: str
     name: str
     host_platform: str
+    dont_override: Optional[List[str]] = []
 
 class ConfigData(BaseModel):
     shows: Dict[str,ShowDetails]
