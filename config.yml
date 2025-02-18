@@ -104,6 +104,8 @@ usernames_map:
     - Producer Jeff
   zach-mitchell:
     - zmitchell
+  carlgeorge:
+    - carl-george
 
 # List of any data filenames (sponsors or people) which shouldn't be
 # overridden when scraping latest shows. Any file that was manually edited should
