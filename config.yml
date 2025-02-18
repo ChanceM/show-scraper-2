@@ -105,6 +105,13 @@ usernames_map:
     - michaetunnell
     - michael-tunnell
     - Michael Tunnell
+  jeff:
+    - producer-jeff
+    - Producer Jeff
+  zach-mitchell:
+    - zmitchell
+  carlgeorge:
+    - carl-george
 
 # List of any data filenames (sponsors or people) which shouldn't be
 # overridden when scraping latest shows. Any file that was manually edited should
@@ -121,3 +128,5 @@ data_dont_override:
   - catherine-kretzschmar.md
   - jeromelaban.md
   - friends.md
+  - joe.md
+  - joeres.md
