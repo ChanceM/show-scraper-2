@@ -47,6 +47,11 @@ from scraper import get_description
             # OH EP 36
             ''' <p>A special edition of Office Hours gets into the wild future of Podcasting, and Moritz from Alby joins us.</p> <p><br />Music by: The Top Hats Orchestra - Boost them in the show.</p> ''',
             "A special edition of Office Hours gets into the wild future of Podcasting, and Moritz from Alby joins us."
+        ),
+        (
+            # TL EP 10
+            '''<p>Last week, we hit the <em>reset</em> button. This week, meet Angela—Chris’ ex-wife, mother of three, and original Jupiter Broadcasting troublemaker. Get ready for crazy stories from the early days.<br /><br /><strong>LINKS:</strong><ul><li><a href="https://www.nbcnews.com/pop-culture/duolingo-death-owl-duo-cybertruck-social-media-what-happened-rcna191939" target="_blank">Condolences pour in for Duolingo after Duo the Owl's death in Cybertruck accident</a></li><li><a href="https://www.youtube.com/playlist?list=PL73AAFA51E9BBABFA" target="_blank">FauxShow - YouTube</a></li><li><a href="https://techtalk.today/" target="_blank">Tech Talk Today</a></li><li><a href="https://www.dailymail.co.uk/sciencetech/article-14397593/Scientists-mysterious-radioactive-blip-Pacific.html" target="_blank">Scientists are baffled after discovering a mysterious radioactive 'blip' deep under the Pacific Ocean&nbsp;</a></li></ul></p>''',
+            "Last week, we hit the reset button. This week, meet Angela—Chris’ ex-wife, mother of three, and original Jupiter Broadcasting troublemaker. Get ready for crazy stories from the early days."
         )
     ]
 )

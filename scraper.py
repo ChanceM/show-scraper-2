@@ -249,8 +249,8 @@ def get_description(description: str) -> str:
     """
     soup = BeautifulSoup(f'<div>{description.strip()}</div>', features="html.parser")
 
-    for br in soup.find_all('br'):
-        br.replace_with(' ')
+    for elem in soup.find_all(['br', 'em']):
+        elem.unwrap()
 
     element = soup.find('div').next_element
 
