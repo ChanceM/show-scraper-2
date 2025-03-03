@@ -224,7 +224,7 @@ def get_picks(description: str, episode_number: int, show: str, show_details: Sh
                 )
             ]
         )
-        output_file = Path('data/picks/', re.sub(r'[\\/:*?"<>|]', "", obj.title.lower().replace(' ','-'))+'.yaml')
+        output_file = Path(f'{Settings.DATA_DIR}/picks/', re.sub(r'[\\/:*?"<>|]', "", obj.title.lower().replace(' ','-'))+'.yaml')
         save_file(output_file, dumps(Post('',**obj.model_dump(mode='json'))), overwrite=True)
 
 def get_links(description: str) -> str:
