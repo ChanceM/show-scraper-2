@@ -20,6 +20,12 @@ shows:
     acronym: tl
     name: The Launch 🚀
     host_platform: podhome
+    dont_override:
+      - 0008.md
+      - 0007.md
+      - 0006.md
+      - 0005.md
+      - 0004.md
   # self-hosted:
   #   show_rss: https://selfhosted.show/rss
   #   show_url: https://selfhosted.show

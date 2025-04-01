@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     # Any files that already exist in this directory will not be overwritten.
     DATA_DIR: str = './data'
     LOG_LVL: int = INFO
-    Host_Roles: Set = {'Host', 'Co-Host'}
+    Host_Roles: Set = {'Host', 'Co-Host', 'Guest Host'}
     Guest_Roles: Set = {'Guest'}
     Extras: str = 'Allow'
     Overwrite_Existing: bool = True

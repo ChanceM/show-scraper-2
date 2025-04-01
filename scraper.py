@@ -8,7 +8,7 @@ from types import NoneType, SimpleNamespace
 from unicodedata import normalize
 import requests
 import yaml
-from bs4 import BeautifulSoup, NavigableString, SoupStrainer, Tag
+from bs4 import BeautifulSoup, NavigableString, SoupStrainer, Tag, ResultSet
 from typing import Union, Optional, Dict, List
 from pydantic import AnyHttpUrl, ValidationError
 from frontmatter import Post, dumps, load
@@ -19,6 +19,7 @@ from random import randrange
 from threading import Lock
 
 from models import Rss
+from models.pick import Pick, PickShow
 from models.scraper import Settings
 from models.config import ConfigData, ShowDetails
 from models.episode import Episode, Chapters
@@ -202,9 +203,29 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 episode_links=episode_links
             )
 
+    get_picks(item.description, episode_number, show, show_details)
     build_participants(item.podcast_persons)
 
-    save_file(output_file, episode.get_hugo_md_file_content(), overwrite=Settings.Overwrite_Existing)
+    save_file(output_file, episode.get_hugo_md_file_content(), overwrite=Settings.Overwrite_Existing if output_file.name not in show_details.dont_override else False)
+
+def get_picks(description: str, episode_number: int, show: str, show_details: ShowDetails) -> None:
+    soup = BeautifulSoup(description, features="html.parser", parse_only=SoupStrainer(['a', 'li']))
+    picks: ResultSet  = soup.find_all(['a','li'],string=re.compile('^Pick:.*'))
+    for pick in picks:
+        obj = Pick(
+            title=pick.string.replace('Pick:','').strip(),
+            url=pick['href'],
+            description=pick.parent.contents[-1].replace('—', '').strip(),
+            shows= [
+                PickShow(
+                    show=show_details.name,
+                    episode=episode_number,
+                    slug=show
+                )
+            ]
+        )
+        output_file = Path(f'{Settings.DATA_DIR}/data/picks/', re.sub(r'[\\/:*?"<>|]', "", obj.title.lower().replace(' ','-'))+'.yaml')
+        save_file(output_file, dumps(Post('',**obj.model_dump(mode='json'))), overwrite=True)
 
 def get_links(description: str) -> str:
     """
@@ -249,8 +270,8 @@ def get_description(description: str) -> str:
     """
     soup = BeautifulSoup(f'<div>{description.strip()}</div>', features="html.parser")
 
-    for br in soup.find_all('br'):
-        br.replace_with(' ')
+    for elem in soup.find_all(['br', 'em']):
+        elem.unwrap()
 
     element = soup.find('div').next_element
 
@@ -269,6 +290,9 @@ def build_participants(participants: List[Person]):
     for participant in list(filter(lambda person: person.role in [*Settings.Host_Roles, *Settings.Guest_Roles], participants)):
         canonical_username = get_canonical_username(participant)
         filename = f'{canonical_username}.md'
+
+        if participant.img:
+            save_avatar_img(participant.img, canonical_username, f'images/people/{canonical_username}.{str(participant.img).split(".")[-1]}')
 
         PARTICIPANTS.update({
             filename: Participant(
@@ -329,8 +353,6 @@ def save_participants(executor: concurrent.futures.ThreadPoolExecutor) -> None:
         futures.append(executor.submit(
             process_and_serialize_object,
             filename, participant, person_dir, overwrite=Settings.Overwrite_Existing))
-        if participant.avatar:
-            save_avatar_img(participant.avatar,participant.username, f'images/people/{participant.username}.{str(participant.avatar).split(".")[-1]}')
 
     # Drain all threads
     for future in concurrent.futures.as_completed(futures):
