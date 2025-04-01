@@ -112,6 +112,8 @@ usernames_map:
     - zmitchell
   carlgeorge:
     - carl-george
+  jon-seager:
+    - jnsgruk
 
 # List of any data filenames (sponsors or people) which shouldn't be
 # overridden when scraping latest shows. Any file that was manually edited should
