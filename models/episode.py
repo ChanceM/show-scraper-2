@@ -184,7 +184,7 @@ class Episode(BaseModel):
     # Path part of the URL to the episode page on show's Fireside website
     # Example:
     #   "/42"
-    fireside_url: str
+    fireside_url: Optional[str]
 
     value: Optional[Value]
 

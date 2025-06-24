@@ -52,4 +52,15 @@ class Item(ScraperBaseXmlModel, tag='item'):
 
     @field_validator('pubDate', mode='before')
     def pubDate_validator(cls, value: str) -> str:
-        return datetime.strptime(value, '%a, %d %b %Y %H:%M:%S %z').isoformat()
+        formats = [
+            '%a, %d %b %Y %H:%M:%S %z',  # Numeric offset, e.g., +0000
+            '%a, %d %b %Y %H:%M:%S %Z',  # Abbreviation, e.g., GMT
+        ]
+        for fmt in formats:
+            try:
+                return datetime.strptime(value, fmt).isoformat()
+            except ValueError:
+                continue
+        raise ValueError(
+            f"pubDate '{value}' does not match supported formats."
+        )

@@ -66,7 +66,7 @@ class Channel(ScraperBaseXmlModel, tag="channel"):
     link: str = element()
     generator: Optional[str] = element(default=None)
     language: str = element()
-    copyright: str = element()
+    copyright: Optional[str] = element(default=None)
     managingEditor: Optional[EmailStr] = element(default=None)
     lastBuildDate: Optional[str] = element(default=None)
     itunes_author: Optional[str] = Author
@@ -99,6 +99,17 @@ class Channel(ScraperBaseXmlModel, tag="channel"):
     podcast_value: Optional[Value] = None
     items: Tuple[Item, ...] = element(tag="item")
 
-    @field_validator("pubDate", mode="before")
+    @field_validator('pubDate', mode='before')
     def pubDate_validator(cls, value: str) -> str:
-        return datetime.strptime(value, "%a, %d %b %Y %H:%M:%S %z").isoformat()
+        formats = [
+            '%a, %d %b %Y %H:%M:%S %z',  # Numeric offset, e.g., +0000
+            '%a, %d %b %Y %H:%M:%S %Z',  # Abbreviation, e.g., GMT
+        ]
+        for fmt in formats:
+            try:
+                return datetime.strptime(value, fmt).isoformat()
+            except ValueError:
+                continue
+        raise ValueError(
+            f"pubDate '{value}' does not match supported formats."
+        )
