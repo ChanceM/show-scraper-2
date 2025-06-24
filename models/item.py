@@ -52,4 +52,7 @@ class Item(ScraperBaseXmlModel, tag='item'):
 
     @field_validator('pubDate', mode='before')
     def pubDate_validator(cls, value: str) -> str:
+        if (value[-1].isalpha()):
+            return datetime.strptime(value, '%a, %d %b %Y %H:%M:%S %Z').isoformat()
+
         return datetime.strptime(value, '%a, %d %b %Y %H:%M:%S %z').isoformat()

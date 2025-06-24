@@ -15,7 +15,6 @@ from frontmatter import Post, dumps, load
 from html2text import html2text
 from loguru import logger
 from pathlib import Path
-from random import randrange
 from threading import Lock
 
 from models import Rss
@@ -124,8 +123,11 @@ def parse_tags(page_url: AnyHttpUrl, episode_number: str, show: str, show_detail
     Fetch page and use parse strategy based on host platform to parse list of tags.
     """
     tags: List[str] = []
-    response = requests.get(page_url,)
-    page_soup = BeautifulSoup(response.text, features="html.parser")
+    try:
+        response = requests.get(page_url,)
+        page_soup = BeautifulSoup(response.text, features="html.parser")
+    except requests.exceptions.MissingSchema:
+        return tags
 
     match show_details.host_platform:
         case 'podhome':
@@ -153,8 +155,19 @@ def parse_episode_number(title: str) -> str:
         return ''
 
 def build_episode_file(item: Item, show: str, show_details: ShowDetails):
-    episode_string = item.podcast_episode.episode if item.podcast_episode else parse_episode_number(item.title)
-    episode_number, episode_number_padded = (int(episode_string), f'{int(episode_string):04}') if episode_string.isnumeric() else tuple((item.link.split("/")[-1],))*2
+    if item.link is not None or item.podcast_episode is not None:
+        episode_string = item.podcast_episode.episode if item.podcast_episode else parse_episode_number(item.title)
+        episode_number, episode_number_padded = (int(episode_string), f'{int(episode_string):04}') if episode_string.isnumeric() else tuple((item.link.split("/")[-1],))*2
+    else: #Temporary workaround to generate episode number based on file names and guids
+        with LOCK:
+                files = sorted(list((Path(Settings.DATA_DIR) / 'content' / 'show'/show).iterdir()),reverse=True)
+                last_five_guids = [load(file).metadata.get('episode_guid') if not file.is_dir() else '' for file in files[4:8]]
+                if item.guid.guid in last_five_guids:
+                    return
+
+                episode_string = files[4].name[0:-3]
+                episode_number, episode_number_padded = (int((files[4].name)[0:-3])+1, f'{int(files[4].name[0:-3]):04}')
+
 
     output_file = Path(Settings.DATA_DIR) / 'content' / 'show' / show / f'{episode_number_padded.replace("/","")}.md'
 
@@ -170,6 +183,8 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
             f"{e}"
         )
         return
+    except requests.exceptions.MissingSchema:
+        sponsors = set()
     tags = sorted(item.itunes_keywords.keywords) if item.itunes_keywords else parse_tags(item.link, episode_number,show,show_details)
 
     episode_links = get_links(item.content_encoded if item.content_encoded else item.description)
