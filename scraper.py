@@ -154,7 +154,8 @@ def parse_episode_number(title: str) -> str:
 
 def build_episode_file(item: Item, show: str, show_details: ShowDetails):
     episode_string = item.podcast_episode.episode if item.podcast_episode else parse_episode_number(item.title)
-    episode_number, episode_number_padded = (int(episode_string), f'{int(episode_string):04}') if episode_string.isnumeric() else tuple((item.link.split("/")[-1],))*2
+    import random
+    episode_number, episode_number_padded = (int(episode_string), f'{int(episode_string):04}') if episode_string.isnumeric() else (rn:=random.randint(1,100),f'{int(rn):04}') #tuple((item.link.split("/")[-1],))*2
 
     output_file = Path(Settings.DATA_DIR) / 'content' / 'show' / show / f'{episode_number_padded.replace("/","")}.md'
 
@@ -163,14 +164,14 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
         return
 
     try:
-        sponsors = parse_sponsors(item.link, episode_number,show,show_details)
+        sponsors = parse_sponsors(item.link, episode_number,show,show_details) if item.link else []
     except requests.HTTPError as e:
         logger.exception(
             f"Skipping {show_details.name} episode {episode_number} could not get episode page.\n"
             f"{e}"
         )
         return
-    tags = sorted(item.itunes_keywords.keywords) if item.itunes_keywords else parse_tags(item.link, episode_number,show,show_details)
+    tags = sorted(item.itunes_keywords.keywords) if item.itunes_keywords else parse_tags(item.link, episode_number,show,show_details) if item.link else []
 
     episode_links = get_links(item.content_encoded if item.content_encoded else item.description)
 
