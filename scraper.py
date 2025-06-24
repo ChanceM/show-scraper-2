@@ -161,12 +161,14 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
     else: #Temporary workaround to generate episode number based on file names and guids
         with LOCK:
                 files = sorted(list((Path(Settings.DATA_DIR) / 'content' / 'show'/show).iterdir()),reverse=True)
-                last_five_guids = [load(file).metadata.get('episode_guid') if not file.is_dir() else '' for file in files[4:8]]
+                last_five_guids = [load(file).metadata.get('episode_guid') if not file.is_dir() else '' for file in files[4:9]]
+
                 if item.guid.guid in last_five_guids:
+                    logger.warning(f"Skipping saving `{item.guid.guid}` as it was found in the last 5 files.")
                     return
 
-                episode_string = str(int(files[4].name[0:-3])+1)
-                episode_number, episode_number_padded = (int((files[4].name)[0:-3])+1, f'{int(files[4].name[0:-3]):04}')
+                episode_number = int(files[4].name[0:-3])+1
+                episode_number_padded = f'{episode_number:04}'
 
 
     output_file = Path(Settings.DATA_DIR) / 'content' / 'show' / show / f'{episode_number_padded.replace("/","")}.md'
