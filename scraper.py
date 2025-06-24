@@ -165,7 +165,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 if item.guid.guid in last_five_guids:
                     return
 
-                episode_string = files[4].name[0:-3]
+                episode_string = str(int(files[4].name[0:-3])+1)
                 episode_number, episode_number_padded = (int((files[4].name)[0:-3])+1, f'{int(files[4].name[0:-3]):04}')
 
 
