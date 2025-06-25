@@ -3,7 +3,7 @@ import json
 from textwrap import indent
 from typing import List, Literal, Optional
 from uuid import UUID
-from pydantic import BaseModel, AnyHttpUrl, HttpUrl, NonNegativeInt, PositiveInt, constr, model_validator, field_validator, ValidationInfo
+from pydantic import BaseModel, AnyHttpUrl, HttpUrl, NonNegativeInt, NonNegativeFloat, PositiveInt, constr, model_validator, field_validator, ValidationInfo
 from pydantic.dataclasses import dataclass as py_dataclass
 from models.podcast import Value
 
@@ -30,7 +30,7 @@ class Chapter:
     """
     Used to parse the individual chapter markers from fireside
     """
-    startTime: NonNegativeInt
+    startTime: NonNegativeFloat
     title: Optional[str] = None
     img: Optional[HttpUrl] = None
     url: Optional[HttpUrl] = None
