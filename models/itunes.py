@@ -21,6 +21,8 @@ EPISODE_TYPES = Literal[
 
 Title: str = element(tag='title', default=None, ns='itunes', nsmap=NSMAP)
 
+New_Feed_Url: Optional[str] = element(tag='new-feed-url', default=None, ns='itunes', nsmap=NSMAP)
+
 class ItunesImage(ScraperBaseXmlModel, tag='image', ns='itunes', nsmap=NSMAP):
     href: Optional[AnyHttpUrl] = attr(default=None)
 

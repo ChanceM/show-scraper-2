@@ -27,6 +27,7 @@ from models.podcast import (
 )
 from models.itunes import (
     Category,
+    New_Feed_Url,
     Subtitle,
     Title,
     ItunesImage,
@@ -73,6 +74,7 @@ class Channel(ScraperBaseXmlModel, tag="channel"):
     itunes_categories: Tuple[Category, ...] = None
     itunes_explicit: Optional[Explicit] = None
     itunes_image: Optional[ItunesImage] = None
+    itunes_new_feed_url: Optional[str] = New_Feed_Url
     itunes_owner: Optional[Owner] = None
     itunes_subtitle: Optional[Subtitle] = None
     itunes_title: Optional[str] = Title
