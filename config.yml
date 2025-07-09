@@ -6,6 +6,12 @@ shows:
     acronym: twib
     name: This Week In Bitcoin
     host_platform: fountain
+    dont_override:
+      - 0061.md
+      - 0060.md
+      - 0059.md
+      - 0058.md
+      - 0057.md
   linux-unplugged:
     show_rss: https://feeds.jupiterbroadcasting.com/lup
     show_url: https:/linux-unplugged.show
