@@ -293,7 +293,7 @@ def get_description(description: str) -> str:
     element = soup.find('div').next_element
 
     if isinstance(element, Tag):
-        soup = BeautifulSoup(f'<div>{element.renderContents().decode("utf-8")}</div>', features='html.parser')
+        soup = BeautifulSoup(f'<div>{element.encode_contents().decode("utf-8")}</div>', features='html.parser')
         return soup.find('div').next_element.text.strip()
 
     description_parts: List[str] = [element.strip()]
