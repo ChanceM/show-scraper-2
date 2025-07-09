@@ -4,6 +4,7 @@ from models.liveitem import LiveItem
 from pydantic import EmailStr, field_validator
 from pydantic_xml import attr, element
 from typing import Tuple, Optional
+from email.utils import parsedate_to_datetime
 from models.scraper import ScraperBaseXmlModel
 from models.podcast import (
     Block,
@@ -103,7 +104,4 @@ class Channel(ScraperBaseXmlModel, tag="channel"):
 
     @field_validator('pubDate', mode='before')
     def pubDate_validator(cls, value: str) -> str:
-        if (value[-1].isalpha()):
-            return datetime.strptime(value, '%a, %d %b %Y %H:%M:%S %Z').isoformat()
-
-        return datetime.strptime(value, '%a, %d %b %Y %H:%M:%S %z').isoformat()
+        return parsedate_to_datetime(value).isoformat()

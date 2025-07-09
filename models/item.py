@@ -1,4 +1,3 @@
-import os
 from pydantic_xml import attr, element
 from typing import Tuple, Optional
 from models .scraper import ScraperBaseXmlModel
@@ -6,7 +5,7 @@ from models.podcast import AlternateEnclosure, Chapters, Chat, Episode, Funding,
 from models.itunes import Keywords, Subtitle, Title, ItunesImage, Author, Explicit,  Duration, ItunesEpisode, EpisodeType
 from models.content import Encoded
 from pydantic import constr, AnyHttpUrl, field_validator
-from datetime import datetime
+from email.utils import parsedate_to_datetime
 
 class Guid(ScraperBaseXmlModel, tag='guid', ns=''):
     isPermaLink: Optional[bool] = attr(default=None)
@@ -52,7 +51,4 @@ class Item(ScraperBaseXmlModel, tag='item'):
 
     @field_validator('pubDate', mode='before')
     def pubDate_validator(cls, value: str) -> str:
-        if (value[-1].isalpha()):
-            return datetime.strptime(value, '%a, %d %b %Y %H:%M:%S %Z').isoformat()
-
-        return datetime.strptime(value, '%a, %d %b %Y %H:%M:%S %z').isoformat()
+        return parsedate_to_datetime(value).isoformat()
