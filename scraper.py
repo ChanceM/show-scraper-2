@@ -155,21 +155,8 @@ def parse_episode_number(title: str) -> str:
         return ''
 
 def build_episode_file(item: Item, show: str, show_details: ShowDetails):
-    if item.link is not None or item.podcast_episode is not None:
-        episode_string = item.podcast_episode.episode if item.podcast_episode else parse_episode_number(item.title)
-        episode_number, episode_number_padded = (int(episode_string), f'{int(episode_string):04}') if episode_string.isnumeric() else tuple((item.link.split("/")[-1],))*2
-    else: #Temporary workaround to generate episode number based on file names and guids
-        with LOCK:
-                files = sorted(list((Path(Settings.DATA_DIR) / 'content' / 'show'/show).iterdir()),reverse=True)
-                last_five_guids = [load(file).metadata.get('episode_guid') if not file.is_dir() else '' for file in files[4:9]]
-
-                if item.guid.guid in last_five_guids:
-                    logger.warning(f"Skipping saving `{item.guid.guid}` as it was found in the last 5 files.")
-                    return
-
-                episode_number = int(files[4].name[0:-3])+1
-                episode_number_padded = f'{episode_number:04}'
-
+    episode_string = item.podcast_episode.episode if item.podcast_episode else parse_episode_number(item.title)
+    episode_number, episode_number_padded = (int(episode_string), f'{int(episode_string):04}') if episode_string.isnumeric() else tuple((item.link.split("/")[-1],))*2
 
     output_file = Path(Settings.DATA_DIR) / 'content' / 'show' / show / f'{episode_number_padded.replace("/","")}.md'
 
