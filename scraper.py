@@ -220,6 +220,10 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
                 episode_links=episode_links
             )
 
+    # 🩹 for twib feed not supporting podcast:person
+    if show == 'this-week-in-bitcoin' and len(episode.hosts) == 0:
+        episode.hosts = ['chris']
+
     get_picks(item.description, episode_number, show, show_details)
     build_participants(item.podcast_persons)
 
