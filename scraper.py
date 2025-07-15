@@ -216,14 +216,15 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
 
     save_file(output_file, episode.get_hugo_md_file_content(), overwrite=Settings.Overwrite_Existing if output_file.name not in show_details.dont_override else False)
 
-def get_picks(description: str, episode_number: int, show: str, show_details: ShowDetails) -> None:
+def get_picks(description: str, episode_number: int, show: str, show_details: ShowDetails) -> List[Pick]:
+    picked: List[Pick] = []
     soup = BeautifulSoup(description, features="html.parser", parse_only=SoupStrainer(['a', 'li']))
-    picks: ResultSet  = soup.find_all(['a','li'],string=re.compile('^Pick:.*'))
+    picks: ResultSet  = soup.find_all(['a','li>a'],string=re.compile('^Pick:.*'))
     for pick in picks:
         obj = Pick(
             title=pick.string.replace('Pick:','').strip(),
             url=pick['href'],
-            description=pick.parent.contents[-1].replace('—', '').strip(),
+            description=pick.parent.contents[-1].replace('—', '').strip() if pick.parent.contents != [pick] else None,
             shows= [
                 PickShow(
                     show=show_details.name,
@@ -232,8 +233,10 @@ def get_picks(description: str, episode_number: int, show: str, show_details: Sh
                 )
             ]
         )
+        picked.append(obj)
         output_file = Path(f'{Settings.DATA_DIR}/data/picks/', re.sub(r'[\\/:*?"<>|]', "", obj.title.lower().replace(' ','-'))+'.yaml')
         save_file(output_file, dumps(Post('',**obj.model_dump(mode='json'))), overwrite=True)
+    return picked
 
 def get_links(description: str) -> str:
     """

@@ -9,6 +9,6 @@ class PickShow(BaseModel):
 class Pick(BaseModel):
     title: str
     url: AnyHttpUrl
-    description: str
+    description: Optional[str] = None
     shows: list[PickShow]
     license: Optional[str] = None
