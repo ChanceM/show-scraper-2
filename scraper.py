@@ -178,6 +178,13 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails):
 
     episode_links = get_links(item.content_encoded if item.content_encoded else item.description)
 
+    # 🩹 for the launch phone number
+    if show == 'the-launch':
+        if episode_links[0:4] == '****':
+            episode_links = episode_links.replace('****','**CALL 1-774-462-5667**')
+        else:
+            episode_links = '**CALL 1-774-462-5667**\n\n' + episode_links
+
     episode = Episode(
                 show_slug=show,
                 show_name=show_details.name,
