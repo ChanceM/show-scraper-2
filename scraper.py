@@ -449,8 +449,11 @@ def main():
                 rss_tag.attrs['xmlns:podcast'] = 'https://podcastindex.org/namespace/1.0'
                 del response
                 response = SimpleNamespace(content=str(rss_tag))
-
-        rss = Rss.from_xml(response.content)
+        try:
+            rss = Rss.from_xml(response.content)
+        except ValidationError as e:
+            logger.error(f'{e}\n')
+            continue
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
 
