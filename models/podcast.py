@@ -313,19 +313,19 @@ class Integrity(ScraperBaseXmlModel, tag='integrity', ns='podcast', nsmap=NSMAP)
     value: str = attr()
 
 class Source(ScraperBaseXmlModel, tag='source', ns='podcast', nsmap=NSMAP):
-    url: AnyHttpUrl = attr()
+    uri: AnyHttpUrl = attr()
     contentType: Optional[str] = None
 
 class AlternateEnclosure(ScraperBaseXmlModel, tag='alternateEnclosure', ns='podcast', nsmap=NSMAP):
     type: str = attr()
-    length: Optional[PositiveInt] = attr(defualt=None)
-    bitrate: Optional[float] = attr(defualt=None)
-    height: Optional[PositiveInt] = attr(defualt=None)
-    lang: Optional[str] = attr(defualt=None)
-    title: Optional[str] = attr(defualt=None)
-    rel: Optional[str] = attr(defualt=None)
-    codecs: Optional[str] = attr(defualt=None)
-    defualt: Optional[bool] = attr(defualt=None)
+    length: Optional[PositiveInt] = attr(default=None)
+    bitrate: Optional[float] = attr(default=None)
+    height: Optional[PositiveInt] = attr(default=None)
+    lang: Optional[str] = attr(default=None)
+    title: Optional[str] = attr(default=None)
+    rel: Optional[str] = attr(default=None)
+    codecs: Optional[str] = attr(default=None)
+    default: Optional[bool] = attr(default=None)
     integrity: Optional[Integrity] = None
     sources: Tuple[Source,...] = element(tag='source')
 
