@@ -1,4 +1,4 @@
-from models.podcast import Block, Chat, Guid, Episode, Publisher, RemoteItem, SocialInteract, Txt
+from models.podcast import AlternateEnclosure, Block, Chat, Guid, Episode, Publisher, RemoteItem, SocialInteract, Source, Txt
 from uuid import UUID
 from pydantic import ValidationError
 import pytest
@@ -54,3 +54,16 @@ def test_podcast_chat():
     assert Chat.from_xml(b'<podcast:chat xmlns:podcast="https://podcastindex.org/namespace/1.0" server="irc.zeronode.net" protocol="irc" accountId="@jsmith"/>') == Chat(server="irc.zeronode.net", protocol="irc", accountId="@jsmith")
     with pytest.raises(ValidationError):
         assert Chat(server="irc.zeronode.net")
+
+
+@pytest.mark.parametrize("test_input,expected",
+  [
+    (
+        '<podcast:alternateEnclosure xmlns:podcast="https://podcastindex.org/namespace/1.0" type="audio/mpeg" length="78858122" title="Bonus Episode" paywall="L402" auth="NOSTR"><podcast:source uri="https://feeds.fountain.fm/40huHEEF6JMPGYctMuUI/items/WxMQ7HpjU1XJpgUbo1Fm/files/AUDIO---PAID---91408357-3379-407d-a8b3-85b3cc2d3349.mp3"/></podcast:alternateEnclosure>'
+        ,AlternateEnclosure(type='audio/mpeg', length='78858122', title='Bonus Episode', sources=(Source(uri='https://feeds.fountain.fm/40huHEEF6JMPGYctMuUI/items/WxMQ7HpjU1XJpgUbo1Fm/files/AUDIO---PAID---91408357-3379-407d-a8b3-85b3cc2d3349.mp3'),))
+    )
+  ]
+)
+
+def test_podcast_alternateEnclosure(test_input,expected):
+    assert AlternateEnclosure.from_xml(test_input) == expected
