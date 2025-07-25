@@ -156,6 +156,7 @@ def parse_episode_number(title: str) -> str:
 
 def build_episode_file(item: Item, show: str, show_details: ShowDetails) -> None:
     if item.itunes_episodeType == 'bonus':
+        logger.warning(f'Skipping episode of type {item.itunes_episodeType}:\n{item.title}')
         return
 
     episode_string = item.podcast_episode.episode if item.podcast_episode else parse_episode_number(item.title)
