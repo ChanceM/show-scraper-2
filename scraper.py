@@ -154,7 +154,10 @@ def parse_episode_number(title: str) -> str:
     except AttributeError:
         return ''
 
-def build_episode_file(item: Item, show: str, show_details: ShowDetails):
+def build_episode_file(item: Item, show: str, show_details: ShowDetails) -> None:
+    if item.itunes_episodeType == 'bonus':
+        return
+
     episode_string = item.podcast_episode.episode if item.podcast_episode else parse_episode_number(item.title)
     episode_number, episode_number_padded = (int(episode_string), f'{int(episode_string):04}') if episode_string.isnumeric() else tuple((item.link.split("/")[-1],))*2
 
