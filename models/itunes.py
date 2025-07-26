@@ -44,7 +44,7 @@ class Explicit(ScraperBaseXmlModel, tag='explicit', ns='itunes', nsmap=NSMAP):
 
 class Category(ScraperBaseXmlModel, tag='category', ns='itunes', nsmap=NSMAP):
     text: str = attr()
-    category: Optional[str] = wrapped('category',attr(name='text',default=None),default=None)
+    category: Optional['Category'] = None
 
 Type: Optional[TYPE_VALUES] = element(tag='type', default=None, ns='itunes', nsmap=NSMAP)
 

@@ -1,4 +1,4 @@
-from models.itunes import Duration, Explicit, Keywords
+from models.itunes import Category, Duration, Explicit, Keywords
 from datetime import time
 
 def test_itunes_explicit():
@@ -31,3 +31,9 @@ def test_itunes_keywords():
     assert Keywords(keywords='tag1,tag2,tag3').keywords[2] == 'tag3'
     assert Keywords.from_xml(b'<itunes:keywords xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">tag1,tag2,tag3</itunes:keywords>') == Keywords(keywords='tag1,tag2,tag3')
     assert Keywords(keywords='tag1,tag2,tag3').to_xml() == b'<itunes:keywords xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">tag1,tag2,tag3</itunes:keywords>'
+
+def test_itunes_category():
+    assert Category.from_xml('<itunes:category xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" text="News"><itunes:category text="Tech News"/></itunes:category>') == Category(text='News', category=Category(text='Tech News'))
+    assert Category.from_xml('<itunes:category xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" text="News"><itunes:category text="Tech News"/></itunes:category>').category.text == 'Tech News'
+    assert Category.from_xml('<itunes:category xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" text="News"><itunes:category text="Tech News"/></itunes:category>').text == 'News'
+    assert Category.from_xml('<itunes:category xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" text="News"/>') == Category(text='News')
