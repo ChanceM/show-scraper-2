@@ -299,7 +299,10 @@ def get_description(description: str) -> str:
 
     if isinstance(element, Tag):
         soup = BeautifulSoup(f'<div>{element.encode_contents().decode("utf-8")}</div>', features='html.parser')
-        return soup.find('div').next_element.text.strip()
+        if len(elems := soup.find('div').find_all()) <= 1 and {tag.name for tag in elems} == {'a'}:
+            return soup.find('div').text.strip()
+        else:
+            return soup.find('div').next_element.text.strip()
 
     description_parts: List[str] = [element.strip()]
     while not isinstance(element := element.next_element, Tag):
