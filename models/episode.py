@@ -5,7 +5,7 @@ from typing import List, Literal, Optional
 from uuid import UUID
 from pydantic import BaseModel, AnyHttpUrl, HttpUrl, NonNegativeInt, NonNegativeFloat, PositiveInt, constr, model_validator, field_validator, ValidationInfo
 from pydantic.dataclasses import dataclass as py_dataclass
-from models.podcast import Value
+from models.podcast import Value, Transcript 
 
 
 
@@ -186,10 +186,8 @@ class Episode(BaseModel):
     #   "/42"
     fireside_url: Optional[str]
 
-    # Url to the VTT version of the episode transcripts
-    # Example:
-    #   https://feeds.jupiterbroadcasting.com/transcripts/lup/08a0780e-c979-41e1-bdd1-016fca89a405.vtt
-    transcript_url: Optional[HttpUrl]
+    # List of transcripts for the episode
+    transcripts: Optional[List[Transcript]]
 
     value: Optional[Value]
 
