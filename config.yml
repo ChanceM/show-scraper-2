@@ -19,6 +19,8 @@ shows:
     acronym: lup
     name: LINUX Unplugged
     host_platform: fireside
+    dont_override:
+      - 0646.md
   the-launch:
     show_rss: https://serve.podhome.fm/rss/04b078f9-b3e8-4363-a576-98e668231306
     show_url: https://www.weeklylaunch.rocks
