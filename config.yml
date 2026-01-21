@@ -53,13 +53,13 @@ shows:
   #   acronym: LAN
   #   name: Linux Action News
   #   host_platform: fireside
-  # jupiter-extras:
-  #   show_rss: https://extras.show/rss
-  #   show_url: https://extras.show
-  #   jb_url: https://www.jupiterbroadcasting.com/show/extras
-  #   acronym: JE
-  #   name: Jupiter EXTRAS
-  #   host_platform: fireside
+  jupiter-extras:
+    show_rss: https://extras.show/rss
+    show_url: https://extras.show
+    jb_url: https://www.jupiterbroadcasting.com/show/extras
+    acronym: JE
+    name: Jupiter EXTRAS
+    host_platform: fireside
   # office-hours:
   #   show_rss: https://feeds.us-east-1.linodeobjects.com/office/office.xml
   #   show_url: https://www.officehours.hair
