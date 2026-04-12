@@ -336,15 +336,6 @@ class SocialInteract(ScraperBaseXmlModel, tag='socialInteract', ns='podcast', ns
     accountUrl: Optional[AnyHttpUrl] = attr(default=None)
     priority: Optional[PositiveInt] = attr(default=None)
 
-    @field_validator('uri',mode='before')
-    @classmethod
-    def validate_uri(cls, value, values):
-        print(values.data['protocol'])
-        if values.data['protocol'] != 'disabled' and value is None:
-            raise ValueError('uri is required')
-        return value
-
-
     @model_validator(mode='after')
     @classmethod
     def check_disabled(cls, data):
@@ -353,6 +344,8 @@ class SocialInteract(ScraperBaseXmlModel, tag='socialInteract', ns='podcast', ns
             data.accountId = None
             data.accountUrl = None
             data.priority = None
+        elif data.uri is None:
+            raise ValueError('uri is required when protocol is not disabled')
         return data
 
 class Block(ScraperBaseXmlModel, tag='block', ns='podcast', nsmap=NSMAP):

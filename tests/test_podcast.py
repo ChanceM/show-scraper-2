@@ -19,6 +19,8 @@ def test_podcast_socialInteract():
     assert SocialInteract(protocol='disabled', uri='https://podcastindex.social/web/@dave/108013847520053258', accountId='@dave').to_xml() == b'<podcast:socialInteract xmlns:podcast="https://podcastindex.org/namespace/1.0" protocol="disabled"/>'
     assert SocialInteract(protocol='activitypub', uri='https://podcastindex.social/web/@dave/108013847520053258', accountId='@dave').to_xml() == b'<podcast:socialInteract xmlns:podcast="https://podcastindex.org/namespace/1.0" protocol="activitypub" uri="https://podcastindex.social/web/@dave/108013847520053258" accountId="@dave"/>'
     assert SocialInteract.from_xml(b'<podcast:socialInteract xmlns:podcast="https://podcastindex.org/namespace/1.0" priority="1" protocol="activitypub" uri="https://podcastindex.social/web/@dave/108013847520053258" accountId="@dave" accountUrl="https://podcastindex.social/web/@dave"/>') == SocialInteract(protocol='activitypub', uri='https://podcastindex.social/web/@dave/108013847520053258', accountId='@dave', accountUrl='https://podcastindex.social/web/@dave', priority=1)
+    with pytest.raises(ValidationError):
+        assert SocialInteract(protocol='activitypub', accountId='@dave')
 
 def test_podcast_block():
     assert Block(block="yes").block == 'yes'
