@@ -28,4 +28,4 @@ def test_live_sponsor():
         jb_url='https://www.jupiterbroadcasting.com/show/linux-unplugged',
         acronym='lup',
         name='LINUX Unplugged',
-        host_platform='fireside')) == ['podhome.fm-twib']
+        host_platform='fireside')) == ['defined.net-lup','memberful.com-lup']
