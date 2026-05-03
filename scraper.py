@@ -159,6 +159,10 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails) -> None
         logger.warning(f'Skipping episode of type {item.itunes_episodeType}:\n{item.title}')
         return
 
+    if item.guid.guid in show_details.dont_parse:
+        logger.warning(f'Skipping episode explicit do not parse: {item.title}')
+        return
+
     episode_string = item.podcast_episode.episode if item.podcast_episode else parse_episode_number(item.title)
     episode_number, episode_number_padded = (int(episode_string), f'{int(episode_string):04}') if episode_string.isnumeric() else tuple((item.link.split("/")[-1],))*2
 

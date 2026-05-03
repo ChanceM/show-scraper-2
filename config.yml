@@ -12,10 +12,12 @@ shows:
       - 0059.md
       - 0058.md
       - 0057.md
+    dont_parse:
+      - 44505fca-ff34-4d21-b2be-4b09c48c30f0
   linux-unplugged:
     show_rss: https://feeds.jupiterbroadcasting.com/lup
     show_url: https:/linux-unplugged.show
-    jb_url:  https://www.jupiterbroadcasting.com/show/linux-unplugged
+    jb_url: https://www.jupiterbroadcasting.com/show/linux-unplugged
     acronym: lup
     name: LINUX Unplugged
     host_platform: fireside
@@ -24,7 +26,7 @@ shows:
   the-launch:
     show_rss: https://serve.podhome.fm/rss/04b078f9-b3e8-4363-a576-98e668231306
     show_url: https://www.weeklylaunch.rocks
-    jb_url:  https://www.jupiterbroadcasting.com/show/the-launch
+    jb_url: https://www.jupiterbroadcasting.com/show/the-launch
     acronym: tl
     name: The Launch 🚀
     host_platform: podhome
@@ -55,13 +57,13 @@ shows:
   #   acronym: LAN
   #   name: Linux Action News
   #   host_platform: fireside
-  # jupiter-extras:
-  #   show_rss: https://extras.show/rss
-  #   show_url: https://extras.show
-  #   jb_url: https://www.jupiterbroadcasting.com/show/extras
-  #   acronym: JE
-  #   name: Jupiter EXTRAS
-  #   host_platform: fireside
+  jupiter-extras:
+    show_rss: https://extras.show/rss
+    show_url: https://extras.show
+    jb_url: https://www.jupiterbroadcasting.com/show/extras
+    acronym: JE
+    name: Jupiter EXTRAS
+    host_platform: fireside
   # office-hours:
   #   show_rss: https://feeds.us-east-1.linodeobjects.com/office/office.xml
   #   show_url: https://www.officehours.hair
