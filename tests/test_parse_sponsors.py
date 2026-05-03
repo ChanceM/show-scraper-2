@@ -20,3 +20,12 @@ def test_parse_sponsors_single(requests_mock):
         acronym='twib',
         name='This Week In Bitcoin',
         host_platform='podhome')) == ['podhome.fm-twib']
+
+def test_live_sponsor():
+    assert parse_sponsors('https://linuxunplugged.com/664', '664', 'lup', ShowDetails(
+        show_rss='https://feeds.jupiterbroadcasting.com/lup',
+        show_url='https:/linux-unplugged.show',
+        jb_url='https://www.jupiterbroadcasting.com/show/linux-unplugged',
+        acronym='lup',
+        name='LINUX Unplugged',
+        host_platform='fireside')) == ['podhome.fm-twib']

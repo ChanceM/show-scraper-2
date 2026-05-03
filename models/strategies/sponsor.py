@@ -46,12 +46,12 @@ class FiresideSponsorParse(SponsorParseStrategy):
                         filename: Sponsor(
                             shortname=shortname,
                             title=sponsor_a.find("header").text.strip(),
-                            description=sponsor_a.find("p").text.strip(),
+                            description=sponsor_a.find("p").text.strip() if sponsor_a.find("p") else sponsor_a.text.strip(),
                             link=sl,
                             episode=episode_number
                         )
                     })
-            except Exception as e:
+            except Exception:
                 raise
 
         return sponsors
