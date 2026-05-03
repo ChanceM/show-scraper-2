@@ -10,6 +10,7 @@ class ShowDetails(BaseModel):
     name: str
     host_platform: str
     dont_override: Optional[List[str]] = []
+    dont_parse: Optional[List[str]] = []
 
 class ConfigData(BaseModel):
     shows: Dict[str,ShowDetails]
