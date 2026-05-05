@@ -46,7 +46,7 @@ class FiresideSponsorParse(SponsorParseStrategy):
                         filename: Sponsor(
                             shortname=shortname,
                             title=sponsor_a.find("header").text.strip(),
-                            description=sponsor_a.find("p").text.strip() if sponsor_a.find("p") else sponsor_a.text.strip(),
+                            description=sponsor_a.find("p").text.strip() if sponsor_a.find("p") else sponsor_a.find(string=lambda text: text.strip(), recursive=False).strip(),
                             link=sl,
                             episode=episode_number
                         )
