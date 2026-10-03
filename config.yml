@@ -57,13 +57,13 @@ shows:
   #   acronym: LAN
   #   name: Linux Action News
   #   host_platform: fireside
-  # jupiter-extras:
-  #   show_rss: https://extras.show/rss
-  #   show_url: https://extras.show
-  #   jb_url: https://www.jupiterbroadcasting.com/show/extras
-  #   acronym: JE
-  #   name: Jupiter EXTRAS
-  #   host_platform: fireside
+  jupiter-extras:
+    show_rss: https://extras.show/rss
+    show_url: https://extras.show
+    jb_url: https://www.jupiterbroadcasting.com/show/jupiter-extras
+    acronym: JE
+    name: Jupiter EXTRAS
+    host_platform: fireside
   # office-hours:
   #   show_rss: https://feeds.us-east-1.linodeobjects.com/office/office.xml
   #   show_url: https://www.officehours.hair
@@ -124,6 +124,8 @@ usernames_map:
     - carl-george
   jon-seager:
     - jnsgruk
+  friends:
+    - Friends of Jupiter Broadcasting
 
 # List of any data filenames (sponsors or people) which shouldn't be
 # overridden when scraping latest shows. Any file that was manually edited should

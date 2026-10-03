@@ -15,11 +15,16 @@ class SponsorParseStrategy(ABC):
         pass
 
 class FiresideSponsorParse(SponsorParseStrategy):
-    def parse(self, page: BeautifulSoup, show_details: ShowDetails, episode_number: int):
+    def parse(self, page: BeautifulSoup, show_details: ShowDetails, episode_number: int) -> Dict[str, Sponsor]:
         sponsors: Dict[str, Sponsor] = {}
 
-         # Get only the links of all the sponsors
-        sponsors_ul = page.find('div',  attrs={'class':'episode-sponsors'}).find('ul')
+        # Get only the links of all the sponsors. Many episodes have no
+        # sponsor block, so bail out early rather than raising on a missing div.
+        sponsors_div = page.find('div', attrs={'class': 'episode-sponsors'})
+        if not sponsors_div:
+            return sponsors
+
+        sponsors_ul = sponsors_div.find('ul')
 
         if not sponsors_ul:
             return sponsors
@@ -39,8 +44,7 @@ class FiresideSponsorParse(SponsorParseStrategy):
                 filename = f"{shortname}.md"
 
                 # Find the <a> element on the page with the link
-                sponsor_a = page.find(
-                    "div", class_="episode-sponsors").find("a", attrs={"href": sl})
+                sponsor_a = sponsors_div.find("a", attrs={"href": sl})
                 if sponsor_a and not sponsors.get(filename):
                     sponsors.update({
                         filename: Sponsor(
