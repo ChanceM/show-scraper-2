@@ -16,6 +16,7 @@ from html2text import html2text
 from loguru import logger
 from pathlib import Path
 from threading import Lock
+from urllib.parse import urlparse
 
 from models import Rss
 from models.pick import Pick, PickShow
@@ -154,6 +155,31 @@ def parse_episode_number(title: str) -> str:
     except AttributeError:
         return ''
 
+def numeric_episode_number_from_url(link: Optional[str]) -> str:
+    """
+    Get the episode number from the last numeric segment of an episode URL,
+    e.g. https://extras.show/94. Returns '' when there isn't one.
+    """
+    if not link:
+        return ''
+
+    tail = urlparse(link).path.rstrip('/').rsplit('/', 1)[-1]
+
+    return tail if tail.isnumeric() else ''
+
+def resolve_episode_number(item: Item) -> str:
+    """
+    Get an episode number from the feed, falling back to the episode URL and
+    then the title, since some feeds (Jupiter Extras) publish neither tag.
+    """
+    if item.podcast_episode and item.podcast_episode.episode:
+        return str(item.podcast_episode.episode).strip()
+
+    if item.itunes_episode:
+        return str(item.itunes_episode)
+
+    return numeric_episode_number_from_url(item.link) or parse_episode_number(item.title)
+
 def build_episode_file(item: Item, show: str, show_details: ShowDetails) -> None:
     if item.itunes_episodeType == 'bonus':
         logger.warning(f'Skipping episode of type {item.itunes_episodeType}:\n{item.title}')
@@ -163,7 +189,7 @@ def build_episode_file(item: Item, show: str, show_details: ShowDetails) -> None
         logger.warning(f'Skipping episode explicit do not parse: {item.title}')
         return
 
-    episode_string = item.podcast_episode.episode if item.podcast_episode else parse_episode_number(item.title)
+    episode_string = resolve_episode_number(item)
     episode_number, episode_number_padded = (int(episode_string), f'{int(episode_string):04}') if episode_string.isnumeric() else tuple((item.link.split("/")[-1],))*2
 
     output_file = Path(Settings.DATA_DIR) / 'content' / 'show' / show / f'{episode_number_padded.replace("/","")}.md'
