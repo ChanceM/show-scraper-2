@@ -11,17 +11,16 @@ from models.sponsor import Sponsor
 
 class SponsorParseStrategy(ABC):
     @abstractmethod
-    def parse(self, page: BeautifulSoup, show_details: ShowDetails, episode_number: int) -> Dict[str, Sponsor]:
+    def parse(self, page: BeautifulSoup, show_details: ShowDetails, episode_number: int) -> dict[str, Sponsor]:
         pass
 
 class FiresideSponsorParse(SponsorParseStrategy):
-    def parse(self, page: BeautifulSoup, show_details: ShowDetails, episode_number: int) -> Dict[str, Sponsor]:
-        sponsors: Dict[str, Sponsor] = {}
+    def parse(self, page: BeautifulSoup, show_details: ShowDetails, episode_number: int) -> dict[str, Sponsor]:
+        sponsors: dict[str, Sponsor] = {}
 
         # Get only the links of all the sponsors. Many episodes have no
         # sponsor block, so bail out early rather than raising on a missing div.
-        sponsors_div = page.find('div', attrs={'class': 'episode-sponsors'})
-        if not sponsors_div:
+        if not (sponsors_div := page.find('div', attrs={'class': 'episode-sponsors'})) :
             return sponsors
 
         sponsors_ul = sponsors_div.find('ul')
