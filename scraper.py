@@ -4,6 +4,7 @@ import concurrent.futures
 from html import escape
 import sys
 import re
+from urllib.parse import urlparse
 from types import NoneType, SimpleNamespace
 from unicodedata import normalize
 import requests
@@ -339,13 +340,26 @@ def emoji_strip(description: str) -> str:
     )
     return emoji_pattern.sub('', description)
 
+def avatar_relpath(img_url: str, username: str) -> str:
+    """images/people/<username>.<ext> for an avatar URL.
+
+    Keeps the query-stripped URL suffix when plausible, else jpg, so
+    extensionless avatar URLs still map to a usable filename."""
+    suffix = Path(urlparse(str(img_url)).path).suffix.lstrip('.').lower()
+    plausible = (suffix.isascii() and suffix.isalnum()
+                 and any(c.isalpha() for c in suffix)
+                 and len(suffix) <= 4)
+    ext = suffix if plausible else 'jpg'
+    return f'images/people/{username}.{ext}'
+
 def build_participants(participants: List[Person]):
     for participant in list(filter(lambda person: person.role in [*Settings.Host_Roles, *Settings.Guest_Roles], participants)):
         canonical_username = get_canonical_username(participant)
         filename = f'{canonical_username}.md'
 
         if participant.img:
-            save_avatar_img(participant.img, canonical_username, f'images/people/{canonical_username}.{str(participant.img).split(".")[-1]}')
+            rel = avatar_relpath(participant.img, canonical_username)
+            save_avatar_img(participant.img, canonical_username, rel)
 
         PARTICIPANTS.update({
             filename: Participant(
@@ -353,7 +367,7 @@ def build_participants(participants: List[Person]):
                 username=canonical_username,
                 title=participant.name,
                 homepage=str(participant.href) if participant.href else None,
-                avatar=f'/images/people/{canonical_username}.{str(participant.img).split(".")[-1]}' if participant.img else None
+                avatar=f'/{rel}' if participant.img else None
             )
         })
 
