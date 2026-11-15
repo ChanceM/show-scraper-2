@@ -23,3 +23,14 @@ def test_merged_people_are_not_overridden(mocker, tmp_path, filename):
                                                        avatar='/images/people/new.png'), tmp_path, overwrite=True)
 
     assert (tmp_path / filename).read_text() == original
+
+
+@mark.parametrize("filename", ["joe.md", "joeres.md"])
+def test_removed_people_are_not_recreated(mocker, tmp_path, filename):
+    with open("config.yml") as file:
+        config = ConfigData(**yaml.load(file, Loader=yaml.SafeLoader))
+    mocker.patch("scraper.CONFIGURATION", config)
+
+    process_and_serialize_object(filename, Participant(type="host", username="joe", title="Joe"), tmp_path, overwrite=True)
+
+    assert not (tmp_path / filename).exists()

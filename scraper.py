@@ -458,9 +458,8 @@ def process_and_serialize_object(filename: str, obj: Participant | Sponsor, dest
     """
     file_path: Path = dest_dir / filename
 
-    if file_path.exists() and filename in CONFIGURATION.data_dont_override:
+    if filename in CONFIGURATION.data_dont_override:
         logger.warning(f"Filename `{filename}` found in `data_dont_override`! Will not save to it.")
-        overwrite = False
         return
 
 
