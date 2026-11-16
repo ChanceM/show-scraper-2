@@ -22,6 +22,46 @@ shows:
     name: LINUX Unplugged
     host_platform: fireside
     dont_override:
+      - 0248.md
+      - 0249.md
+      - 0255.md
+      - 0256.md
+      - 0257.md
+      - 0263.md
+      - 0269.md
+      - 0277.md
+      - 0283.md
+      - 0288.md
+      - 0291.md
+      - 0295.md
+      - 0300.md
+      - 0308.md
+      - 0326.md
+      - 0328.md
+      - 0336.md
+      - 0340.md
+      - 0347.md
+      - 0350.md
+      - 0351.md
+      - 0354.md
+      - 0356.md
+      - 0360.md
+      - 0364.md
+      - 0366.md
+      - 0368.md
+      - 0369.md
+      - 0391.md
+      - 0392.md
+      - 0395.md
+      - 0428.md
+      - 0430.md
+      - 0435.md
+      - 0461.md
+      - 0470.md
+      - 0480.md
+      - 0481.md
+      - 0524.md
+      - 0537.md
       - 0646.md
   the-launch:
     show_rss: https://serve.podhome.fm/rss/04b078f9-b3e8-4363-a576-98e668231306
@@ -43,6 +83,12 @@ shows:
   #   acronym: ssh
   #   name: Self-Hosted
   #   host_platform: fireside
+  #   dont_override:
+  #     - 0001.md
+  #     - 0044.md
+  #     - 0108.md
+  #     - 0117.md
+  #     - 0144.md
   # coder-radio:
   #   show_rss: https://feeds.jupiterbroadcasting.com/coder
   #   show_url: https://coder.show
@@ -50,6 +96,37 @@ shows:
   #   acronym: cr
   #   name: Coder Radio
   #   host_platform: fireside
+  #   dont_override:
+  #     - 0316.md
+  #     - 0329.md
+  #     - 0403.md
+  #     - 0414.md
+  #     - 0423.md
+  #     - 0430.md
+  #     - 0450.md
+  #     - 0456.md
+  #     - 0492.md
+  #     - 0502.md
+  #     - 0505.md
+  #     - 0508.md
+  #     - 0510.md
+  #     - 0512.md
+  #     - 0524.md
+  #     - 0525.md
+  #     - 0536.md
+  #     - 0542.md
+  #     - 0545.md
+  #     - 0554.md
+  #     - 0562.md
+  #     - 0567.md
+  #     - 0569.md
+  #     - 0575.md
+  #     - 0577.md
+  #     - 0579.md
+  #     - 0581.md
+  #     - 0590.md
+  #     - 0599.md
+  #     - 0603.md
   # linux-action-news:
   #   show_rss: https://linuxactionnews.com/rss
   #   show_url: https://linuxactionnews.com
@@ -57,6 +134,22 @@ shows:
   #   acronym: LAN
   #   name: Linux Action News
   #   host_platform: fireside
+  #   dont_override:
+  #     - 0004.md
+  #     - 0043.md
+  #     - 0087.md
+  #     - 0122.md
+  #     - 0123.md
+  #     - 0124.md
+  #     - 0133.md
+  #     - 0135.md
+  #     - 0137.md
+  #     - 0138.md
+  #     - 0140.md
+  #     - 0190.md
+  #     - 0193.md
+  #     - 0233.md
+  #     - 0250.md
   jupiter-extras:
     show_rss: https://extras.show/rss
     show_url: https://extras.show
@@ -64,6 +157,9 @@ shows:
     acronym: JE
     name: Jupiter EXTRAS
     host_platform: fireside
+    dont_override:
+      - 0012.md
+      - 0063.md
   # office-hours:
   #   show_rss: https://feeds.us-east-1.linodeobjects.com/office/office.xml
   #   show_url: https://www.officehours.hair
@@ -71,6 +167,11 @@ shows:
   #   acronym: OH
   #   name: Office Hours
   #   host_platform: fireside
+  #   dont_override:
+  #     - 0007.md
+  #     - 0012.md
+  #     - 0013.md
+  #     - 0021.md
 
 # Map usernames of hosts/guests as they appear in Fireside to how we want to
 # save them in the new website. This also helps to avoid duplicates
