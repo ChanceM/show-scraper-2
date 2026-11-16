@@ -86,6 +86,7 @@ shows:
   #   dont_override:
   #     - 0001.md
   #     - 0044.md
+  #     - 0079.md
   #     - 0108.md
   #     - 0117.md
   #     - 0144.md
@@ -105,6 +106,14 @@ shows:
   #     - 0430.md
   #     - 0450.md
   #     - 0456.md
+  #     - 0472.md
+  #     - 0473.md
+  #     - 0474.md
+  #     - 0475.md
+  #     - 0476.md
+  #     - 0478.md
+  #     - 0480.md
+  #     - 0483.md
   #     - 0492.md
   #     - 0502.md
   #     - 0505.md
@@ -169,6 +178,7 @@ shows:
   #   host_platform: fireside
   #   dont_override:
   #     - 0007.md
+  #     - 0008.md
   #     - 0012.md
   #     - 0013.md
   #     - 0021.md
