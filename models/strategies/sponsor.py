@@ -40,7 +40,7 @@ class FiresideSponsorParse(SponsorParseStrategy):
                 sponsor_slug = ".".join(urlparse(sl).hostname.split(".")[-2:])
                 shortname = f"{sponsor_slug}-{show_details.acronym}".lower()
 
-                filename = f"{shortname}.md"
+                filename = f"{shortname}.yaml"
 
                 # Find the <a> element on the page with the link
                 sponsor_a = sponsors_div.find("a", attrs={"href": sl})
@@ -79,7 +79,7 @@ class PodhomeSponsorParse(SponsorParseStrategy):
                 sponsor_slug = ".".join(urlparse(sponsor_link['href']).hostname.split(".")[-2:])
                 shortname = f"{sponsor_slug}-{show_details.acronym}".lower()
 
-                filename = f'{shortname}.md'
+                filename = f"{shortname}.yaml"
 
                 description = " ".join([sponsor_link.find_next('strong').text if type(sponsor_link.find_next('strong')) is not NoneType else '', sponsor_link.find_next('strong').next_sibling.text if type(sponsor_link.find_next('strong')) is not NoneType else ''])
 

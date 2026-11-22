@@ -33,7 +33,7 @@ from models.strategies.tag import FiresideTagParse, PodhomeTagParse, TagParser
 
 # The sponsors' data is collected into this global when episode files are scraped.
 # This data is saved to files files after the episode files have been created.
-SPONSORS: Dict[str, Sponsor] = {}  # JSON filename as key (e.g. "linode.com-lup.json")
+SPONSORS: Dict[str, Sponsor] = {}  # YAML filename as key (e.g. "linode.com-lup.yaml")
 PARTICIPANTS: Dict[str, Participant] = {}
 
 LOCK = Lock()
@@ -411,7 +411,7 @@ def save_avatar_img(img_url: str, username: str, relative_filepath: str) -> None
 
 def save_sponsors(executor: concurrent.futures.ThreadPoolExecutor) -> None:
     logger.info(">>> Saving the sponsors found in episodes...")
-    sponsors_dir = Path(Settings.DATA_DIR) / 'content' / 'sponsors'
+    sponsors_dir = Path(Settings.DATA_DIR) / 'data' / 'sponsors'
     futures = []
     for filename, sponsor in SPONSORS.items():
         futures.append(executor.submit(
@@ -464,14 +464,14 @@ def process_and_serialize_object(filename: str, obj: Participant | Sponsor, dest
 
 
     if not file_path.exists():
-        save_file(file_path, dumps(Post('',**obj.model_dump(mode='json'))), overwrite=overwrite)
+        save_file(file_path, serialize_object(obj), overwrite=overwrite)
         return
 
     with LOCK:
         with open(file_path) as file:
             post_file: Post = load(file)
             if isinstance(obj, Sponsor):
-                if (file_ep := post_file.metadata.get("episode", None)) and int(file_ep) >= getattr(obj,'episode', -1):
+                if (file_ep := post_file.metadata.get("episode", None)) and int(file_ep) >= (obj.episode or -1):
                     logger.warning(f"Skipping saving `{file_path}` as the current file is the latest")
                     return
 
@@ -479,8 +479,14 @@ def process_and_serialize_object(filename: str, obj: Participant | Sponsor, dest
                 post_file.metadata.update({'homepage': obj.homepage, 'avatar': obj.avatar})
                 obj = Participant(**post_file.metadata)
 
+    save_file(file_path, serialize_object(obj), overwrite=overwrite)
+
+def serialize_object(obj: Participant | Sponsor) -> str:
     # use json mode so URL types are converted to string for output to YAML
-    save_file(file_path, dumps(Post('',**obj.model_dump(mode='json'))), overwrite=overwrite)
+    if isinstance(obj, Sponsor):
+        # Sponsors are Hugo data files (data/sponsors/<shortname>.yaml, like picks); the filename is the shortname
+        return dumps(Post('', **obj.model_dump(mode='json', exclude={'shortname'}, exclude_none=True)))
+    return dumps(Post('',**obj.model_dump(mode='json')))
 
 def save_file(file_path: Path, content: Union[bytes,str], mode: str = "w", overwrite: bool = False) -> bool:
     if not overwrite and file_path.exists():
